@@ -1,6 +1,3 @@
-"""
-Database connection setup using SQLAlchemy + MySQL (pymysql driver).
-"""
 import os
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
@@ -23,16 +20,12 @@ DATABASE_URL = (
     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD_ENCODED}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
  
-# pool_pre_ping avoids "MySQL server has gone away" errors on idle connections
-engine = create_engine(DATABASE_URL, pool_pre_ping=True, echo=False)
- 
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
- 
 Base = declarative_base()
  
  
 def get_db():
-    """FastAPI dependency that yields a DB session and closes it after use."""
     db = SessionLocal()
     try:
         yield db
@@ -42,5 +35,5 @@ def get_db():
  
 def init_db():
     """Create all tables. Call this once on startup."""
-    from app.models import candidate, job  # noqa: F401  (ensures models are registered)
+    from app.models import candidate, job, interview, voice_screening  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)

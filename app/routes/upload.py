@@ -1,15 +1,7 @@
-"""
-upload.py
----------
-API route for uploading a resume file. This ties together:
-  1. services/parser.py    -> raw text extraction
-  2. services/extractor.py -> structured field extraction
-  3. models/candidate.py   -> persistence to MySQL
-"""
 import os
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
-
+ 
 from app.database import get_db
 from app.models.candidate import Candidate
 from app.schemas.candidate import UploadResponse, CandidateResponse
@@ -22,56 +14,51 @@ from app.utils.helpers import (
     save_extracted_json,
     list_to_json,
 )
-
+ 
 router = APIRouter(prefix="/api/upload", tags=["Upload"])
-
+ 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 EXTRACTED_DIR = os.getenv("EXTRACTED_DIR", "extracted_data")
 MAX_UPLOAD_SIZE_MB = int(os.getenv("MAX_UPLOAD_SIZE_MB", "10"))
-
-
-@router.post("/resume", response_model=UploadResponse)
-async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_db)):
+MAX_BULK_FILES = 25  # sane cap so a huge batch can't tie up a single request for too long
+ 
+ 
+def _process_resume(filename: str, file_bytes: bytes, db: Session) -> CandidateResponse:
     """
-    Accepts a single PDF or DOCX resume, parses it, extracts a structured
-    profile, saves both the raw file and the DB record, and returns the
-    created candidate profile.
+    Shared per-file pipeline: validate -> save raw file -> extract text ->
+    extract structured profile -> persist -> return the created profile.
+    Raises HTTPException on any failure (caught per-file by the bulk
+    endpoint, propagated directly by the single-file endpoint).
     """
-    if not is_allowed_file(file.filename):
+    if not is_allowed_file(filename):
         raise HTTPException(
             status_code=400,
             detail="Unsupported file type. Please upload a .pdf or .docx file.",
         )
-
-    file_bytes = await file.read()
-
+ 
     size_mb = len(file_bytes) / (1024 * 1024)
     if size_mb > MAX_UPLOAD_SIZE_MB:
         raise HTTPException(
             status_code=400,
             detail=f"File too large ({size_mb:.1f}MB). Max allowed is {MAX_UPLOAD_SIZE_MB}MB.",
         )
-
-    # Save the raw file under a unique name so re-uploads never collide
-    unique_name = generate_unique_filename(file.filename)
+ 
+    unique_name = generate_unique_filename(filename)
     file_path = save_upload_file(UPLOAD_DIR, unique_name, file_bytes)
-
-    # Step 1: raw text extraction
+ 
     try:
         raw_text = extract_text(file_path)
     except UnsupportedFileTypeError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
+ 
     if not raw_text.strip():
         raise HTTPException(
             status_code=422,
             detail="Could not extract any text from this file. It may be a scanned/image-based document.",
         )
-
-    # Step 2: structured field extraction
+ 
     profile = extract_profile(raw_text)
-
-    # Step 3: persist to DB
+ 
     candidate = Candidate(
         name=profile.get("name"),
         email=profile.get("email"),
@@ -81,17 +68,16 @@ async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_
         experience=list_to_json(profile.get("experience", [])),
         total_experience_years=profile.get("total_experience_years"),
         raw_text=raw_text,
-        source_filename=file.filename,
+        source_filename=filename,
         extraction_accuracy=profile.get("extraction_accuracy"),
     )
     db.add(candidate)
     db.commit()
     db.refresh(candidate)
-
-    # Also keep a JSON copy on disk for quick inspection/debugging
+ 
     save_extracted_json(EXTRACTED_DIR, candidate.id, profile)
-
-    response_candidate = CandidateResponse(
+ 
+    return CandidateResponse(
         id=candidate.id,
         name=candidate.name,
         email=candidate.email,
@@ -104,8 +90,69 @@ async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_
         extraction_accuracy=candidate.extraction_accuracy,
         created_at=candidate.created_at,
     )
-
+ 
+ 
+@router.post("/resume", response_model=UploadResponse)
+async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Accepts a single PDF or DOCX resume, parses it, and saves the profile."""
+    file_bytes = await file.read()
+    candidate = _process_resume(file.filename, file_bytes, db)
     return UploadResponse(
         message="Resume uploaded and parsed successfully.",
-        candidate=response_candidate,
+        candidate=candidate,
     )
+ 
+ 
+@router.post("/resumes")
+async def upload_resumes_bulk(files: list[UploadFile] = File(...), db: Session = Depends(get_db)):
+    """
+    Accepts multiple resumes in one request and parses each independently.
+    A failure on one file (bad format, unreadable, too large) doesn't stop
+    the rest of the batch -- every file gets its own success/error result.
+    """
+    if len(files) > MAX_BULK_FILES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too many files at once ({len(files)}). Upload at most {MAX_BULK_FILES} per batch.",
+        )
+ 
+    results = []
+    succeeded = 0
+    failed = 0
+ 
+    for f in files:
+        try:
+            file_bytes = await f.read()
+            candidate = _process_resume(f.filename, file_bytes, db)
+            results.append({
+                "filename": f.filename,
+                "status": "success",
+                "candidate": candidate,
+            })
+            succeeded += 1
+        except HTTPException as e:
+            # Roll back any partial DB state from this specific file before
+            # continuing to the next one in the batch.
+            db.rollback()
+            results.append({
+                "filename": f.filename,
+                "status": "error",
+                "detail": e.detail,
+            })
+            failed += 1
+        except Exception as e:
+            db.rollback()
+            results.append({
+                "filename": f.filename,
+                "status": "error",
+                "detail": f"Unexpected error: {e}",
+            })
+            failed += 1
+ 
+    return {
+        "message": f"Processed {len(files)} file(s): {succeeded} succeeded, {failed} failed.",
+        "total": len(files),
+        "succeeded": succeeded,
+        "failed": failed,
+        "results": results,
+    }
