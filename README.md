@@ -260,17 +260,6 @@ communication skills and technical knowledge relevant to the role.
 Note: browsers only allow microphone access on secure contexts.
 `localhost` is fine for development; a production deployment would need HTTPS.
 
-## Known limitations
-
-- No structured institution names for education entries (degree line captured as-is)
-- Scanned/image-based PDFs (no embedded text) aren't supported - would need OCR
-- Skills list is a static dictionary, not a full taxonomy
-- No authentication on API routes
-- Skill proficiency levels are approximated from years of experience, not measured per-skill
-- Match scoring uses a fixed 70/30 skills/experience weighting
-- ATS status and ATS score are fully mocked, not connected to a real ATS
-- Interview simulation quality depends on Gemini's free-tier model and rate limits
-
 ## Getting Started (for teammates)
 
 Each person runs their own local copy - `.env` and `venv/` are intentionally
