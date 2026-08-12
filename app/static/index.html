@@ -371,7 +371,7 @@
  
           <div class="card">
             <h2>Voice Screening Module</h2>
-            <p class="sub">Get a question, then record the candidate's spoken answer</p>
+            <p class="sub">Live voice interview — the AI cross-questions based on your answers</p>
             <div class="field-grid" style="margin-bottom:12px;">
               <div>
                 <label class="field-label">Candidate</label>
@@ -382,20 +382,29 @@
                 <select id="voiceJobSelect"></select>
               </div>
             </div>
-            <button class="btn ghost" id="getQuestionBtn" type="button" style="margin-bottom:12px;">Get Question</button>
+            <button class="btn" id="startVoiceInterviewBtn" type="button" style="margin-bottom:12px;">Start Voice Interview</button>
+ 
             <div id="voiceQuestionBox" style="display:none;" class="q-card">
-              <div class="q-text"><span class="q-num">Q</span><span id="voiceQuestionText"></span></div>
-              <div class="q-meta"><span id="voiceQuestionMeta"></span></div>
+              <div class="q-text"><span class="q-num" id="voiceTurnNum">Q</span><span id="voiceQuestionText"></span></div>
             </div>
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-              <button class="btn" id="startRecBtn" type="button" disabled>Record Answer</button>
+ 
+            <div id="voiceRecControls" style="display:none; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+              <button class="btn" id="startRecBtn" type="button">Record Answer</button>
               <button class="btn ghost" id="stopRecBtn" type="button" disabled>Stop</button>
-              <button class="btn ghost" id="saveRecBtn" type="button" disabled>Save Recording</button>
+              <button class="btn ghost" id="submitAnswerBtn" type="button" disabled>Submit Answer</button>
+              <button class="btn ghost" id="endInterviewBtn" type="button" style="border-color:var(--bad); color:var(--bad);">End Interview</button>
             </div>
+ 
             <div id="recStatus" class="rec-status" style="display:none;">
               <span class="rec-dot"></span> Recording in progress... <span id="recTimer">00:00</span>
             </div>
             <canvas id="waveformCanvas" width="500" height="46" style="display:none; width:100%; height:46px; margin-bottom:12px;"></canvas>
+ 
+            <div id="voicePlaybackWrap" style="display:none; margin-bottom:12px;">
+              <label class="field-label">Your recording — listen before submitting</label>
+              <audio id="voicePlayback" controls style="width:100%;"></audio>
+            </div>
+ 
             <div id="voiceAssessment"></div>
           </div>
         </div>
@@ -1160,41 +1169,11 @@ function renderPipelineChart(pipeline){
   }).join('');
 }
  
-/* ================= VOICE SCREENING (Milestone 4) ================= */
+/* ================= VOICE SCREENING (Milestone 4) — multi-turn ================= */
 let mediaRecorder = null, audioChunks = [], audioStream = null, recordedBlob = null;
 let audioCtx = null, analyserNode = null, waveformRAF = null, recTimerInterval = null, recSeconds = 0;
-let currentVoiceQuestion = null;
- 
-async function getVoiceQuestion(){
-  const jobId = el('voiceJobSelect').value;
-  if (!jobId){ toast('Create a job posting first', true); return; }
- 
-  const btn = el('getQuestionBtn');
-  btn.disabled = true; btn.textContent = 'Generating…';
-  try{
-    const res = await fetch(`${API}/interview/questions`, {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ job_id: parseInt(jobId), question_type: 'Technical Skills', num_questions: 1 }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Failed to get a question');
- 
-    const q = (data.questions || [])[0];
-    if (!q){ throw new Error('No question was generated'); }
- 
-    currentVoiceQuestion = q.question;
-    el('voiceQuestionText').textContent = q.question;
-    el('voiceQuestionMeta').textContent = [q.category, q.estimated_time].filter(Boolean).join(' · ');
-    el('voiceQuestionBox').style.display = 'block';
-    el('startRecBtn').disabled = false;
-    el('voiceAssessment').innerHTML = '';
-  }catch(err){
-    toast(err.message || 'Failed to get a question', true);
-  }finally{
-    btn.disabled = false; btn.textContent = 'Get Question';
-  }
-}
-el('getQuestionBtn').addEventListener('click', getVoiceQuestion);
+let currentVoiceSessionId = null;
+let voiceTurnCount = 0;
  
 async function loadVoiceSelectors(){
   try{
@@ -1206,6 +1185,53 @@ async function loadVoiceSelectors(){
       ? allCandidates.map(c => `<option value="${c.id}">${c.name || 'Unknown'}</option>`).join('')
       : '<option value="">No candidates yet</option>';
   }catch(err){ console.error('Could not load voice selectors', err); }
+}
+ 
+function resetVoiceInterviewUI(){
+  currentVoiceSessionId = null;
+  voiceTurnCount = 0;
+  el('voiceQuestionBox').style.display = 'none';
+  el('voiceRecControls').style.display = 'none';
+  el('voicePlaybackWrap').style.display = 'none';
+  el('startVoiceInterviewBtn').style.display = 'inline-block';
+  el('startVoiceInterviewBtn').disabled = false;
+  el('startVoiceInterviewBtn').textContent = 'Start Voice Interview';
+  recordedBlob = null;
+}
+ 
+el('startVoiceInterviewBtn').addEventListener('click', async () => {
+  const candidateId = el('voiceCandidateSelect').value;
+  const jobId = el('voiceJobSelect').value;
+  if (!candidateId){ toast('No candidate selected', true); return; }
+ 
+  const btn = el('startVoiceInterviewBtn');
+  btn.disabled = true; btn.textContent = 'Starting…';
+  try{
+    const form = new FormData();
+    form.append('candidate_id', candidateId);
+    if (jobId) form.append('job_id', jobId);
+    const res = await fetch(`${API}/voice/sessions`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Failed to start voice interview');
+ 
+    currentVoiceSessionId = data.id;
+    voiceTurnCount = 1;
+    el('voiceAssessment').innerHTML = '';
+    showVoiceQuestion(data.transcript[data.transcript.length - 1].text);
+    el('startVoiceInterviewBtn').style.display = 'none';
+    el('voiceRecControls').style.display = 'flex';
+    el('startRecBtn').disabled = false;
+    el('submitAnswerBtn').disabled = true;
+  }catch(err){
+    toast(err.message || 'Failed to start voice interview', true);
+    btn.disabled = false; btn.textContent = 'Start Voice Interview';
+  }
+});
+ 
+function showVoiceQuestion(text){
+  el('voiceTurnNum').textContent = `Q${voiceTurnCount}`;
+  el('voiceQuestionText').textContent = text;
+  el('voiceQuestionBox').style.display = 'block';
 }
  
 function setupWaveform(stream){
@@ -1244,11 +1270,16 @@ async function startRecording(){
     return;
   }
   audioChunks = [];
+  recordedBlob = null;
+  el('voicePlaybackWrap').style.display = 'none';
   mediaRecorder = new MediaRecorder(audioStream);
   mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
   mediaRecorder.onstop = () => {
     recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-    el('saveRecBtn').disabled = false;
+    // Let the candidate/recruiter listen back before submitting
+    el('voicePlayback').src = URL.createObjectURL(recordedBlob);
+    el('voicePlaybackWrap').style.display = 'block';
+    el('submitAnswerBtn').disabled = false;
   };
   mediaRecorder.start();
  
@@ -1256,8 +1287,7 @@ async function startRecording(){
   el('waveformCanvas').style.display = 'block';
   el('startRecBtn').disabled = true;
   el('stopRecBtn').disabled = false;
-  el('saveRecBtn').disabled = true;
-  el('voiceAssessment').innerHTML = '';
+  el('submitAnswerBtn').disabled = true;
  
   recSeconds = 0;
   el('recTimer').textContent = '00:00';
@@ -1279,6 +1309,7 @@ function stopRecording(){
   clearInterval(recTimerInterval);
  
   el('recStatus').style.display = 'none';
+  el('waveformCanvas').style.display = 'none';
   el('startRecBtn').disabled = false;
   el('stopRecBtn').disabled = true;
 }
@@ -1286,60 +1317,65 @@ function stopRecording(){
 el('startRecBtn').addEventListener('click', startRecording);
 el('stopRecBtn').addEventListener('click', stopRecording);
  
-el('saveRecBtn').addEventListener('click', async () => {
-  if (!recordedBlob){ toast('No recording to save', true); return; }
-  const candidateId = el('voiceCandidateSelect').value;
-  if (!candidateId){ toast('Select a candidate first', true); return; }
-  const jobId = el('voiceJobSelect').value || '';
+el('submitAnswerBtn').addEventListener('click', async () => {
+  if (!recordedBlob || !currentVoiceSessionId) return;
  
-  const btn = el('saveRecBtn');
-  btn.disabled = true; btn.textContent = 'Analyzing…';
+  const btn = el('submitAnswerBtn');
+  btn.disabled = true; btn.textContent = 'Thinking of a follow-up…';
+  el('startRecBtn').disabled = true;
  
   const form = new FormData();
-  form.append('candidate_id', candidateId);
-  if (jobId) form.append('job_id', jobId);
-  if (currentVoiceQuestion) form.append('question', currentVoiceQuestion);
-  form.append('audio', recordedBlob, 'screening.webm');
+  form.append('audio', recordedBlob, 'answer.webm');
  
   try{
-    const res = await fetch(`${API}/voice/screen`, { method: 'POST', body: form });
+    const res = await fetch(`${API}/voice/sessions/${currentVoiceSessionId}/answer`, { method: 'POST', body: form });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Failed to analyze recording');
-    const questionRecap = currentVoiceQuestion
-      ? `<p style="margin:0 0 8px; font-size:12px; color:var(--ink-soft);"><b>Question asked:</b> ${currentVoiceQuestion}</p>`
-      : '';
-    el('voiceAssessment').innerHTML = `
-      <div class="assessment-box">
-        <div class="a-title">Preliminary Assessment</div>
-        ${questionRecap}
-        <p>${data.assessment}</p>
-      </div>`;
-    toast('Voice screening analyzed.');
-    loadAnalytics();
+    if (!res.ok) throw new Error(data.detail || 'Failed to submit answer');
  
-    // Reset for the next question/recording
-    currentVoiceQuestion = null;
-    el('voiceQuestionBox').style.display = 'none';
-    el('startRecBtn').disabled = true;
-  }catch(err){
-    toast(err.message || 'Failed to analyze recording', true);
-  }finally{
-    btn.disabled = false; btn.textContent = 'Save Recording';
+    voiceTurnCount++;
+    const nextQuestion = data.transcript[data.transcript.length - 1].text;
+    showVoiceQuestion(nextQuestion);
+ 
+    // Ready for the next answer
     recordedBlob = null;
-    el('waveformCanvas').style.display = 'none';
+    el('voicePlaybackWrap').style.display = 'none';
+    el('startRecBtn').disabled = false;
+  }catch(err){
+    toast(err.message || 'Failed to submit answer', true);
+    el('startRecBtn').disabled = false;
+  }finally{
+    btn.disabled = true; btn.textContent = 'Submit Answer';
   }
 });
  
-el('voiceJobSelect').addEventListener('change', () => {
-  currentVoiceQuestion = null;
-  el('voiceQuestionBox').style.display = 'none';
-  el('startRecBtn').disabled = true;
+el('endInterviewBtn').addEventListener('click', async () => {
+  if (!currentVoiceSessionId){ resetVoiceInterviewUI(); return; }
+  if (!confirm('End this voice interview? A final assessment will be generated from the whole conversation.')) return;
+ 
+  const btn = el('endInterviewBtn');
+  btn.disabled = true; btn.textContent = 'Ending…';
+  try{
+    const res = await fetch(`${API}/voice/sessions/${currentVoiceSessionId}`, { method: 'PATCH' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Failed to end interview');
+ 
+    el('voiceAssessment').innerHTML = `
+      <div class="assessment-box">
+        <div class="a-title">Final Preliminary Assessment</div>
+        <p>${data.final_assessment}</p>
+      </div>`;
+    toast('Voice interview completed.');
+    loadAnalytics();
+    resetVoiceInterviewUI();
+  }catch(err){
+    toast(err.message || 'Failed to end interview', true);
+  }finally{
+    btn.disabled = false; btn.textContent = 'End Interview';
+  }
 });
-el('voiceCandidateSelect').addEventListener('change', () => {
-  currentVoiceQuestion = null;
-  el('voiceQuestionBox').style.display = 'none';
-  el('startRecBtn').disabled = true;
-});
+ 
+el('voiceJobSelect').addEventListener('change', resetVoiceInterviewUI);
+el('voiceCandidateSelect').addEventListener('change', resetVoiceInterviewUI);
  
 /* ---------------- Init ---------------- */
 loadCandidates();

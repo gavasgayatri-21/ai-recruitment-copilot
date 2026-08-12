@@ -146,3 +146,116 @@ def assess_voice_screening(
         ],
     )
     return (response.text or "").strip()
+ 
+ 
+_VOICE_INTERVIEWER_PERSONA = (
+    "You are an AI interviewer conducting a live VOICE screening interview for "
+    "the role of '{job_title}' with a candidate named {who}. You will hear the "
+    "candidate's actual spoken answers as audio. After each answer, ask ONE "
+    "natural follow-up or cross-question that digs into something specific they "
+    "just said -- don't just move to a generic next topic. Keep your questions "
+    "concise (1-3 sentences), warm but professional, and focused on skills and "
+    "experience relevant to the role."
+)
+ 
+ 
+def start_voice_interview(job_title: str, candidate_name: Optional[str]) -> str:
+    """Generates the opening question for a new multi-turn voice interview."""
+    client = _client()
+    who = candidate_name or "the candidate"
+ 
+    response = client.models.generate_content(
+        model=MODEL,
+        contents=[types.Content(
+            role="user",
+            parts=[types.Part(text="Please begin the voice screening with a brief warm greeting and your first question.")],
+        )],
+        config=types.GenerateContentConfig(
+            system_instruction=_VOICE_INTERVIEWER_PERSONA.format(job_title=job_title, who=who)
+        ),
+    )
+    return (response.text or "").strip()
+ 
+ 
+def _turns_to_contents(turns: list) -> list:
+    """
+    Converts resolved turns into Gemini Content objects.
+    turns: [{"role": "model", "text": "..."}, {"role": "user", "audio_bytes": b"...", "mime_type": "..."}]
+    """
+    contents = []
+    for turn in turns:
+        if turn["role"] == "model":
+            contents.append(types.Content(role="model", parts=[types.Part(text=turn["text"])]))
+        else:
+            contents.append(types.Content(
+                role="user",
+                parts=[types.Part.from_bytes(data=turn["audio_bytes"], mime_type=turn["mime_type"])],
+            ))
+    return contents
+ 
+ 
+def continue_voice_interview(
+    turns: list,
+    job_title: str,
+    candidate_name: Optional[str],
+    new_audio_bytes: bytes,
+    new_mime_type: str,
+) -> str:
+    """
+    Advances the voice interview by one turn: hears the candidate's latest
+    spoken answer (plus the full prior audio history, so Gemini has real
+    context) and returns a natural follow-up/cross-question as text.
+    """
+    client = _client()
+    who = candidate_name or "the candidate"
+ 
+    contents = _turns_to_contents(turns)
+    contents.append(types.Content(
+        role="user",
+        parts=[types.Part.from_bytes(data=new_audio_bytes, mime_type=new_mime_type)],
+    ))
+ 
+    response = client.models.generate_content(
+        model=MODEL,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            system_instruction=_VOICE_INTERVIEWER_PERSONA.format(job_title=job_title, who=who)
+        ),
+    )
+    return (response.text or "").strip()
+ 
+ 
+def summarize_voice_interview(
+    turns: list,
+    job_title: str,
+    candidate_name: Optional[str],
+) -> str:
+    """
+    Called when the candidate/recruiter clicks "End Interview": listens back
+    through the whole conversation (all questions + all spoken answers) and
+    produces one overall preliminary assessment.
+    """
+    client = _client()
+    who = candidate_name or "the candidate"
+ 
+    contents = _turns_to_contents(turns)
+    contents.append(types.Content(
+        role="user",
+        parts=[types.Part(text=(
+            "The voice screening has ended. Based on the entire conversation above, "
+            "write a short overall preliminary assessment (3-5 sentences) covering "
+            "communication skills and, where audible, technical knowledge relevant "
+            "to the role, referencing specific things they said. End with a one-line "
+            "recommendation (e.g. 'Recommended for technical interview round.')."
+        ))],
+    ))
+ 
+    response = client.models.generate_content(
+        model=MODEL,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            system_instruction=_VOICE_INTERVIEWER_PERSONA.format(job_title=job_title, who=who)
+        ),
+    )
+    return (response.text or "").strip()
+ 

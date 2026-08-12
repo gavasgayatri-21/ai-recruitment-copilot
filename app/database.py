@@ -35,5 +35,6 @@ def get_db():
  
 def init_db():
     """Create all tables. Call this once on startup."""
-    from app.models import candidate, job, interview, voice_screening  # noqa: F401  (ensures models are registered)
+    from app.models import candidate, job, interview, voice_screening, voice_interview  # noqa: F401  (ensures models are registered)
     Base.metadata.create_all(bind=engine)
+ 
