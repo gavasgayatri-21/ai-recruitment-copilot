@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
  
 from app.database import get_db
@@ -19,6 +20,10 @@ MAX_AUDIO_SIZE_MB = 15
 ALLOWED_MIME_TYPES = {
     "audio/webm", "audio/ogg", "audio/wav", "audio/mp3", "audio/mpeg", "audio/mp4",
 }
+
+
+class VoiceTextAnswer(BaseModel):
+    text: str
  
  
 def _validate_and_save_audio(audio: UploadFile, audio_bytes: bytes) -> tuple:
@@ -52,14 +57,15 @@ def _validate_and_save_audio(audio: UploadFile, audio_bytes: bytes) -> tuple:
 def _resolve_turns_for_gemini(transcript: list) -> list:
     """
     Reads audio bytes back off disk for every user turn in a stored
-    transcript, so the full conversation (with real audio) can be replayed
-    to Gemini for a follow-up question or final summary.
+    transcript, so the full conversation (with real audio, or real text for
+    speech-to-text answers) can be replayed to Gemini for a follow-up
+    question or final summary.
     """
     resolved = []
     for turn in transcript:
         if turn["role"] == "model":
             resolved.append({"role": "model", "text": turn["text"]})
-        else:
+        elif "audio_filename" in turn:
             path = os.path.join(VOICE_DIR, turn["audio_filename"])
             with open(path, "rb") as f:
                 audio_bytes = f.read()
@@ -68,6 +74,8 @@ def _resolve_turns_for_gemini(transcript: list) -> list:
                 "audio_bytes": audio_bytes,
                 "mime_type": turn["mime_type"],
             })
+        else:
+            resolved.append({"role": "user", "text": turn["text"]})
     return resolved
  
  
@@ -161,6 +169,55 @@ async def submit_voice_answer(
         raise HTTPException(status_code=503, detail=str(e))
  
     transcript.append({"role": "user", "audio_filename": filename, "mime_type": base_mime_type})
+    transcript.append({"role": "model", "text": next_question})
+    session.transcript = json.dumps(transcript)
+    db.commit()
+    db.refresh(session)
+ 
+    return _session_to_response(session)
+ 
+ 
+@router.post("/sessions/{session_id}/answer-text")
+def submit_voice_answer_text(
+    session_id: int,
+    payload: VoiceTextAnswer,
+    db: Session = Depends(get_db),
+):
+    """
+    Same as submit_voice_answer, but for an answer captured as text via the
+    browser's live speech-to-text instead of an uploaded audio recording.
+    """
+    session = db.query(VoiceInterviewSession).filter(VoiceInterviewSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Voice interview session not found.")
+    if session.status == "completed":
+        raise HTTPException(status_code=400, detail="This interview has already ended.")
+ 
+    text = (payload.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="No speech was recognized. Please try again.")
+ 
+    candidate = db.query(Candidate).filter(Candidate.id == session.candidate_id).first()
+    job_title = "the role"
+    if session.job_id:
+        job = db.query(JobPosting).filter(JobPosting.id == session.job_id).first()
+        if job:
+            job_title = job.title
+ 
+    transcript = json.loads(session.transcript) if session.transcript else []
+    prior_turns = _resolve_turns_for_gemini(transcript)
+ 
+    try:
+        next_question = interview_service.continue_voice_interview_text(
+            turns=prior_turns,
+            job_title=job_title,
+            candidate_name=candidate.name if candidate else None,
+            new_text=text,
+        )
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+ 
+    transcript.append({"role": "user", "text": text})
     transcript.append({"role": "model", "text": next_question})
     session.transcript = json.dumps(transcript)
     db.commit()
@@ -281,4 +338,3 @@ def get_screenings(candidate_id: int, db: Session = Depends(get_db)):
         }
         for s in screenings
     ]
- 

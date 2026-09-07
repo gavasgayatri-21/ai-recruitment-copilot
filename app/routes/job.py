@@ -1,13 +1,11 @@
-"""
-job.py
-------
-API routes for creating and managing job postings.
-"""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.job import JobPosting
+from app.models.interview import InterviewSession
+from app.models.voice_interview import VoiceInterviewSession
+from app.models.voice_screening import VoiceScreening
 from app.schemas.job import JobPostingCreate, JobPostingResponse
 from app.utils.helpers import list_to_json, json_to_list
 
@@ -60,6 +58,14 @@ def delete_job(job_id: int, db: Session = Depends(get_db)):
     job = db.query(JobPosting).filter(JobPosting.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job posting not found.")
+
+    # Interview/voice sessions may reference this job via a nullable foreign
+    # key. Detach them (keep the candidate history, just drop the job link)
+    # instead of leaving a dangling reference that would fail the delete.
+    db.query(InterviewSession).filter(InterviewSession.job_id == job_id).update({"job_id": None})
+    db.query(VoiceInterviewSession).filter(VoiceInterviewSession.job_id == job_id).update({"job_id": None})
+    db.query(VoiceScreening).filter(VoiceScreening.job_id == job_id).update({"job_id": None})
+
     db.delete(job)
     db.commit()
     return {"message": f"Job posting {job_id} deleted."}

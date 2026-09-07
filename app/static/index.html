@@ -15,292 +15,480 @@
   })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ============================================================
+     DESIGN TOKENS — "instrument panel" for recruiting operations
+     ============================================================ */
   :root{
-    --bg: #F5F7FB;
+    --ink: #12151F;
+    --ink-soft: #5B6072;
+    --ink-faint: #8A8F9E;
+    --paper: #F7F7F5;
     --card: #FFFFFF;
-    --border: #E4E9F2;
-    --ink: #16213E;
-    --ink-soft: #6B7794;
-    --accent: #3457D5;
-    --accent-soft: #EAEFFE;
-    --accent-dark: #26399E;
-    --good: #16A34A;
-    --good-soft: #E9F9EF;
-    --warn: #D97706;
-    --warn-soft: #FEF3E2;
-    --bad: #DC2626;
-    --bad-soft: #FEF2F2;
-    --radius: 14px;
-    --shadow: 0 1px 2px rgba(22,33,62,0.04), 0 8px 24px -12px rgba(22,33,62,0.10);
-    --nav-hover: #F5F7FC;
+    --line: #E3E3DE;
+    --line-soft: #EDEDE9;
+    --signal: #7C3AED;
+    --signal-rgb: 124,58,237;
+    --signal-deep: #5B21B6;
+    --signal-tint: #F2ECFF;
+    --mint: #0F9D6E;
+    --mint-tint: #E5F7EF;
+    --amber: #B7791F;
+    --amber-tint: #FCF3E3;
+    --rust: #C1440E;
+    --rust-tint: #FCEAE3;
     --input-bg: #FFFFFF;
-    --scrollbar: #D6DCEA;
-    --surface-soft: #FBFCFE;
-    --border-soft: #F0F3FA;
-    --border-strong: #C7D1E8;
-    --disabled-bg: #B7C2E0;
-    --muted-2: #9AA5C0;
-    --purple: #7E22CE;
-    --purple-soft: #F3E8FF;
+    --scrollbar: #D8D8D2;
+    --disabled-bg: #C7C9D6;
+ 
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-lg: 10px;
+    --shadow-rest: 0 1px 2px rgba(18,21,31,0.04);
+    --shadow-hover: 0 1px 2px rgba(18,21,31,0.05), 0 10px 24px -12px rgba(18,21,31,0.18);
+ 
+    --font-display: 'Space Grotesk', 'Inter', sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
   }
   html[data-theme="dark"]{
-    --bg: #0F1420;
-    --card: #171D2E;
-    --border: #2A3348;
-    --ink: #EAEEF9;
-    --ink-soft: #8D96B3;
-    --accent: #6B8AFF;
-    --accent-soft: #1E2A4D;
-    --accent-dark: #A8BAFF;
-    --good: #4ADE80;
-    --good-soft: #143024;
-    --warn: #FBBF24;
-    --warn-soft: #332508;
-    --bad: #F87171;
-    --bad-soft: #3A1518;
-    --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 8px 28px -12px rgba(0,0,0,0.55);
-    --nav-hover: #1D2439;
-    --input-bg: #131826;
-    --scrollbar: #2E3651;
-    --surface-soft: #1B2235;
-    --border-soft: #212A40;
-    --border-strong: #384368;
-    --disabled-bg: #2E3651;
-    --muted-2: #5C6684;
-    --purple: #C29BFF;
-    --purple-soft: #251A40;
+    --ink: #EDEEF2;
+    --ink-soft: #9096A8;
+    --ink-faint: #656B7E;
+    --paper: #0B0D14;
+    --card: #12151F;
+    --line: #232733;
+    --line-soft: #1B1F29;
+    --signal: #8B6EF0;
+    --signal-rgb: 139,110,240;
+    --signal-deep: #C9BBFF;
+    --signal-tint: #221A42;
+    --mint: #34D399;
+    --mint-tint: #0F2A22;
+    --amber: #F0B155;
+    --amber-tint: #2E2410;
+    --rust: #FF7A52;
+    --rust-tint: #34140C;
+    --input-bg: #12151F;
+    --scrollbar: #2A2E3B;
+    --disabled-bg: #2A2E3B;
+    --shadow-rest: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-hover: 0 1px 2px rgba(0,0,0,0.4), 0 12px 28px -12px rgba(0,0,0,0.6);
   }
+ 
   *{box-sizing:border-box;}
   html{color-scheme:light;}
   html[data-theme="dark"]{color-scheme:dark;}
   body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:'Inter', -apple-system, sans-serif; -webkit-font-smoothing:antialiased;
-    transition: background-color .25s ease, color .25s ease;
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-body); -webkit-font-smoothing:antialiased;
+    transition: background-color .2s ease, color .2s ease;
   }
-  ::selection{background:var(--accent); color:white;}
+  ::selection{background:var(--signal); color:#fff;}
   *::-webkit-scrollbar{width:8px; height:8px;}
   *::-webkit-scrollbar-track{background:transparent;}
   *::-webkit-scrollbar-thumb{background:var(--scrollbar); border-radius:99px;}
+  h1,h2,h3{font-family:var(--font-display);}
  
+  /* ---------------- Shell / Sidebar ---------------- */
   .shell{display:flex; min-height:100vh;}
   .sidebar{
-    width:220px; flex-shrink:0; background:var(--card); border-right:1px solid var(--border);
-    padding:22px 14px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column;
-    transition: background-color .25s ease, border-color .25s ease;
+    width:232px; flex-shrink:0; background:var(--card); border-right:1px solid var(--line);
+    padding:20px 14px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column;
+    transition: background-color .2s ease, border-color .2s ease;
   }
-  .sidebar .brand{display:flex; align-items:center; gap:10px; padding:0 8px 22px;}
+  .sidebar .brand{display:flex; align-items:center; gap:10px; padding:2px 6px 22px;}
   .sidebar .brand .mark{
-    width:34px; height:34px; border-radius:9px;
-    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
-    display:flex; align-items:center; justify-content:center;
-    color:white; font-family:'Sora'; font-weight:700; font-size:13px;
-    box-shadow:0 4px 14px -4px rgba(52,87,213,0.55);
+    width:30px; height:30px; border-radius:var(--radius-sm);
+    background:linear-gradient(135deg, #8B5CF6, #4F46E5); display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:var(--font-mono); font-weight:700; font-size:12px; letter-spacing:.02em;
+    flex-shrink:0;
   }
-  .sidebar .brand span{font-family:'Sora'; font-weight:600; font-size:14px;}
+  .sidebar .brand .brand-text b{display:block; font-family:var(--font-display); font-weight:600; font-size:14px; line-height:1.2; letter-spacing:-.01em;}
+  .sidebar .brand .brand-text span{display:block; font-family:var(--font-mono); font-size:9.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.08em; margin-top:1px;}
+ 
+  .nav-group{margin-bottom:14px;}
+  .nav-group-label{
+    font-family:var(--font-mono); font-size:10px; font-weight:600; color:var(--ink-faint);
+    text-transform:uppercase; letter-spacing:.09em; padding:0 10px; margin-bottom:6px;
+  }
   .nav-item{
-    display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:9px;
-    font-size:13.5px; font-weight:500; color:var(--ink-soft); cursor:pointer; margin-bottom:2px;
-    transition: all .15s ease; position:relative;
+    display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:var(--radius-sm);
+    font-family:var(--font-body); font-size:13.5px; font-weight:500; color:var(--ink-soft); cursor:pointer;
+    margin-bottom:1px; transition: background-color .12s ease, color .12s ease;
   }
-  .nav-item svg{flex-shrink:0; opacity:.85; transition:transform .15s ease;}
-  .nav-item:hover{background:var(--nav-hover); color:var(--ink);}
-  .nav-item:hover svg{transform:translateX(1px);}
-  .nav-item.active{background:var(--accent-soft); color:var(--accent-dark); font-weight:600;}
-  .nav-item.active::before{
-    content:''; position:absolute; left:-14px; top:50%; transform:translateY(-50%);
-    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--accent);
-  }
-  .sidebar-footer{margin-top:auto; padding-top:14px; border-top:1px solid var(--border);}
+  .nav-item svg{flex-shrink:0; opacity:.8;}
+  .nav-item:hover{background:var(--line-soft); color:var(--ink);}
+  .nav-item.active{background:var(--signal); color:#fff; font-weight:600;}
+  .nav-item.active svg{opacity:1;}
+ 
+  .sidebar-footer{margin-top:auto; padding-top:12px; border-top:1px solid var(--line);}
   .theme-toggle{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:9px 12px; border-radius:9px; cursor:pointer; font-size:12.5px; font-weight:500;
-    color:var(--ink-soft); transition:background .15s ease;
+    padding:8px 10px; border-radius:var(--radius-sm); cursor:pointer; font-size:12.5px; font-weight:500;
+    color:var(--ink-soft); transition:background .12s ease;
   }
-  .theme-toggle:hover{background:var(--nav-hover); color:var(--ink);}
+  .theme-toggle:hover{background:var(--line-soft); color:var(--ink);}
   .theme-toggle .tt-icons{display:flex; align-items:center; gap:6px;}
   .switch{
-    width:34px; height:19px; border-radius:99px; background:var(--border); position:relative;
-    transition:background .2s ease; flex-shrink:0;
+    width:32px; height:18px; border-radius:99px; background:var(--line); position:relative;
+    transition:background .18s ease; flex-shrink:0;
   }
   .switch::after{
-    content:''; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%;
-    background:white; box-shadow:0 1px 3px rgba(0,0,0,0.3); transition:transform .2s ease;
+    content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.35); transition:transform .18s ease;
   }
-  html[data-theme="dark"] .switch{background:var(--accent);}
-  html[data-theme="dark"] .switch::after{transform:translateX(15px);}
+  html[data-theme="dark"] .switch{background:var(--signal);}
+  html[data-theme="dark"] .switch::after{transform:translateX(14px);}
  
+  /* ---------------- Main area / headers ---------------- */
   .main-area{flex:1; min-width:0;}
-  .wrap{max-width:1240px; margin:0 auto; padding:28px 28px 80px;}
+  .wrap{max-width:1240px; margin:0 auto; padding:26px 28px 80px;}
  
-  header.top{display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;}
-  header.top h1{font-family:'Sora'; font-size:19px; font-weight:600; margin:0; letter-spacing:-0.01em;}
-  header.top p{margin:2px 0 0; font-size:13px; color:var(--ink-soft);}
-  .milestone-badge{
-    background:var(--good-soft); color:var(--good); font-size:12.5px; font-weight:600;
-    padding:6px 14px; border-radius:999px; font-family:'Sora';
+  header.top{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px; gap:16px;}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:10.5px; font-weight:600; color:var(--signal);
+    text-transform:uppercase; letter-spacing:.09em; margin:0 0 6px;
   }
+  header.top h1{font-size:21px; font-weight:600; margin:0; letter-spacing:-0.015em; line-height:1.2;}
+  header.top p{margin:4px 0 0; font-size:13px; color:var(--ink-soft);}
+  .milestone-badge{
+    background:var(--card); color:var(--ink-soft); font-family:var(--font-mono); font-size:11px; font-weight:600;
+    padding:6px 11px; border-radius:var(--radius-sm); border:1px solid var(--line); white-space:nowrap;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .led{width:6px; height:6px; border-radius:50%; background:var(--mint); flex-shrink:0; animation:ledpulse 2s ease-in-out infinite;}
+  @keyframes ledpulse{0%,100%{opacity:1; box-shadow:0 0 0 0 rgba(15,157,110,.4);} 50%{opacity:.55; box-shadow:0 0 0 3px rgba(15,157,110,0);}}
  
+  /* ---------------- Panels ---------------- */
   .panel{display:none;}
-  .panel.active{display:block; animation: fadeIn .25s ease;}
-  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  .panel.active{display:block; animation: fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);}}
  
-  .grid{display:grid; grid-template-columns: 1fr 1.25fr; gap:20px; margin-bottom:20px;}
+  .grid{display:grid; grid-template-columns: 1fr 1.25fr; gap:16px; margin-bottom:16px;}
   @media(max-width:900px){.grid{grid-template-columns:1fr;}}
-  .grid-2{display:grid; grid-template-columns: 1fr 1fr; gap:20px;}
+  .grid-2{display:grid; grid-template-columns: 1fr 1fr; gap:16px;}
   @media(max-width:900px){.grid-2{grid-template-columns:1fr;}}
  
-  .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow); transition: background-color .25s ease, border-color .25s ease, box-shadow .2s ease, transform .2s ease;}
-  .card:hover{box-shadow: 0 2px 4px rgba(22,33,62,0.06), 0 14px 32px -14px rgba(22,33,62,0.16);}
-  html[data-theme="dark"] .card:hover{box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 14px 32px -14px rgba(0,0,0,0.7);}
-  .card h2{font-family:'Sora'; font-size:15px; font-weight:600; margin:0 0 4px; display:flex; align-items:center; gap:8px;}
-  .card .sub{font-size:12.5px; color:var(--ink-soft); margin:0 0 18px;}
+  /* ---------------- Cards ---------------- */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px 22px;
+    box-shadow:var(--shadow-rest); transition: box-shadow .15s ease, border-color .15s ease, background-color .2s ease;
+  }
+  .card:hover{box-shadow:var(--shadow-hover);}
+  .card h2{font-size:14.5px; font-weight:600; margin:0 0 4px; display:flex; align-items:center; gap:8px; letter-spacing:-.005em;}
+  .card .sub{font-size:12px; color:var(--ink-soft); margin:0 0 16px;}
  
-  .dropzone{border:1.5px dashed var(--border-strong); border-radius:12px; padding:34px 18px; text-align:center; cursor:pointer; transition: all .15s ease; background:var(--surface-soft);}
-  .dropzone:hover, .dropzone.drag{border-color:var(--accent); background:var(--accent-soft);}
-  .dropzone .icon{width:44px; height:44px; margin:0 auto 12px; border-radius:10px; background:var(--accent-soft); display:flex; align-items:center; justify-content:center;}
-  .dropzone .icon svg{stroke:var(--accent);}
-  .dropzone p{margin:0 0 14px; font-size:13.5px; color:var(--ink-soft);}
-  .btn{background:var(--accent); color:white; border:none; border-radius:8px; padding:9px 18px; font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer; transition: background .15s ease, transform .1s ease, box-shadow .15s ease;}
-  .btn:hover:not(:disabled){background:var(--accent-dark); box-shadow:0 4px 12px -4px rgba(52,87,213,0.5); transform:translateY(-1px);}
+  /* ---------------- Dropzone (signature scan-line) ---------------- */
+  .dropzone{
+    border:1.5px dashed var(--line); border-radius:var(--radius); padding:32px 18px; text-align:center;
+    cursor:pointer; transition: border-color .15s ease, background-color .15s ease; background:var(--paper);
+    position:relative; overflow:hidden;
+  }
+  html[data-theme="dark"] .dropzone{background:var(--line-soft);}
+  .dropzone:hover, .dropzone.drag{border-color:var(--signal); background:var(--signal-tint);}
+  .dropzone.scanning::before{
+    content:''; position:absolute; left:0; right:0; top:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--signal), transparent);
+    animation: scanline 1.1s linear infinite; box-shadow:0 0 8px 1px var(--signal);
+  }
+  @keyframes scanline{0%{top:0;} 100%{top:100%;}}
+  .dropzone .icon{width:40px; height:40px; margin:0 auto 12px; border-radius:var(--radius-sm); background:var(--signal-tint); display:flex; align-items:center; justify-content:center;}
+  .dropzone .icon svg{stroke:var(--signal);}
+  .dropzone p{margin:0 0 14px; font-size:13px; color:var(--ink-soft);}
+ 
+  /* ---------------- Buttons ---------------- */
+  .btn{
+    background:var(--signal); color:#fff; border:none; border-radius:var(--radius-sm); padding:9px 16px;
+    font-family:var(--font-body); font-weight:600; font-size:13px; cursor:pointer;
+    transition: background .12s ease, transform .08s ease, box-shadow .12s ease;
+  }
+  .btn:hover:not(:disabled){background:var(--signal-deep); box-shadow:0 3px 10px -3px rgba(var(--signal-rgb),.5); transform:translateY(-1px);}
   .btn:active:not(:disabled){transform:translateY(0);}
-  .btn:disabled{background:var(--disabled-bg); cursor:not-allowed;}
-  .btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--border);}
-  .btn.ghost:hover{background:var(--accent-soft); border-color:var(--accent);}
-  .btn.sm{padding:6px 12px; font-size:12.5px;}
-  .hint{font-size:11.5px; color:var(--muted-2); margin-top:12px;}
+  .btn:disabled{background:var(--disabled-bg); color:var(--ink-faint); cursor:not-allowed;}
+  .btn.ghost{background:transparent; color:var(--signal); border:1px solid var(--line);}
+  .btn.ghost:hover{background:var(--signal-tint); border-color:var(--signal);}
+  .btn.sm{padding:6px 11px; font-size:12px;}
+  .hint{font-size:11px; color:var(--ink-faint); margin-top:11px;}
  
-  .uploaded-file{margin-top:14px; display:flex; align-items:center; gap:10px; background:var(--surface-soft); border:1px solid var(--border); border-radius:10px; padding:10px 12px;}
-  .uploaded-file .fi{width:30px; height:30px; border-radius:7px; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
-  .uploaded-file .meta{font-size:12.5px; line-height:1.4; overflow:hidden;}
+  .uploaded-file{margin-top:12px; display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px;}
+  html[data-theme="dark"] .uploaded-file{background:var(--line-soft);}
+  .uploaded-file .fi{width:28px; height:28px; border-radius:var(--radius-sm); background:var(--signal-tint); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .uploaded-file .meta{font-size:12px; line-height:1.4; overflow:hidden;}
   .uploaded-file .meta b{display:block; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
   .uploaded-file .meta span{color:var(--ink-soft);}
  
-  .stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;}
-  .stat{background:var(--surface-soft); border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
-  .stat .num{font-family:'JetBrains Mono'; font-variant-numeric:tabular-nums; font-size:22px; font-weight:600; color:var(--accent-dark); line-height:1.1;}
-  .stat .lbl{font-size:11px; color:var(--ink-soft); margin-top:4px;}
- 
-  .progress-track{height:7px; border-radius:99px; background:var(--border-soft); overflow:hidden; margin-bottom:20px;}
-  .progress-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--accent), #5B7CFA); transition: width .5s ease;}
- 
-  .extracted h3, .section-label{font-size:12.5px; font-family:'Sora'; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin:0 0 12px;}
-  .field-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; margin-bottom:16px;}
-  .field .k{font-size:11px; color:var(--ink-soft); margin-bottom:2px;}
-  .field .v{font-size:13.5px; font-weight:500;}
+  /* ---------------- Stat cards ---------------- */
+  .stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;}
+  .stat{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px;}
+  html[data-theme="dark"] .stat{background:var(--line-soft);}
+  .stat .num{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:24px; font-weight:700; color:var(--ink); line-height:1.1;}
+  .stat .lbl{font-size:10.5px; color:var(--ink-soft); margin-top:5px; text-transform:uppercase; letter-spacing:.03em; display:flex; align-items:center; gap:5px;}
+  .stat .job-stat-icon{width:32px; height:32px; margin-bottom:10px;}
+
+  .progress-track{height:6px; border-radius:99px; background:var(--line-soft); overflow:hidden; margin-bottom:18px;}
+  .progress-fill{height:100%; border-radius:99px; background:var(--signal); transition: width .4s ease;}
+
+  .extracted h3, .section-label{font-size:10.5px; font-family:var(--font-mono); font-weight:600; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.07em; margin:0 0 12px;}
+  .extracted-head-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .extracted-head-row h3{margin:0;}
+  .view-profile-link{font-size:11.5px; font-weight:600; color:var(--signal); text-decoration:none; display:inline-flex; align-items:center; gap:4px; cursor:pointer; background:none; border:none; font-family:var(--font-body);}
+  .view-profile-link:hover{text-decoration:underline;}
+  .extraction-header-row{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+  .avatar-chip.lg{width:44px; height:44px; font-size:14px; border-radius:var(--radius);}
+  .extraction-name-block b{font-size:14.5px; font-family:var(--font-display); font-weight:600;}
+  .extraction-contact-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:3px; font-size:12px; color:var(--ink-soft);}
+  .extraction-contact-row span{display:inline-flex; align-items:center; gap:5px;}
+  .field-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; margin-bottom:14px;}
+  .field .k{font-size:10.5px; color:var(--ink-faint); margin-bottom:2px; text-transform:uppercase; letter-spacing:.03em;}
+  .field .v{font-size:13.5px; font-weight:600;}
   .skills-row{display:flex; flex-wrap:wrap; gap:6px;}
-  .chip{background:var(--accent-soft); color:var(--accent-dark); font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; font-family:'Inter';}
-  .chip.sm{font-size:11px; padding:3px 8px;}
-  .empty-state{text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 12px;}
- 
-  table{width:100%; border-collapse:collapse; margin-top:6px;}
-  thead th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:600; padding:0 12px 10px; border-bottom:1px solid var(--border);}
-  tbody td{padding:12px; font-size:13.5px; border-bottom:1px solid var(--border-soft); vertical-align:top;}
+  .chip{background:var(--signal-tint); color:var(--signal-deep); font-size:11.5px; font-weight:600; padding:4px 9px; border-radius:var(--radius-sm); font-family:var(--font-body);}
+  .chip.sm{font-size:10.5px; padding:3px 7px;}
+  .empty-state{text-align:center; color:var(--ink-faint); font-size:12.5px; padding:26px 14px; border:1px dashed var(--line); border-radius:var(--radius); background:var(--paper);}
+  html[data-theme="dark"] .empty-state{background:var(--line-soft);}
+
+  /* ---------------- Dropzone decoration ---------------- */
+  .dropzone-flourish{display:flex; align-items:center; justify-content:center; gap:34px; margin-bottom:14px; position:relative;}
+  .dz-file-badge{width:38px; height:38px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:9px; font-weight:700; flex-shrink:0;}
+  .dz-file-badge.pdf{background:var(--rust-tint); color:var(--rust);}
+  .dz-file-badge.docx{background:var(--signal-tint); color:var(--signal-deep);}
+
+  /* ---------------- Table row highlight ---------------- */
+  @keyframes rowFlash{0%{background:var(--signal-tint);} 100%{background:transparent;}}
+  tbody tr.row-flash{animation:rowFlash 1.4s ease;}
+
+  /* ---------------- Table ---------------- */
+  table{width:100%; border-collapse:collapse; margin-top:4px;}
+  thead th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); font-weight:600; font-family:var(--font-mono); padding:0 12px 10px; border-bottom:1.5px solid var(--line);}
+  tbody td{padding:11px 12px; font-size:13px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
   tbody tr:last-child td{border-bottom:none;}
-  tbody tr:hover{background:var(--nav-hover);}
-  .name-cell b{display:block; font-weight:600;}
-  .name-cell span{font-size:12px; color:var(--ink-soft);}
+  tbody tr{transition: background-color .1s ease;}
+  tbody tr:hover{background:var(--line-soft);}
+  .name-cell{display:flex; align-items:center; gap:10px;}
+  .avatar-chip{
+    width:30px; height:30px; border-radius:var(--radius-sm); background:var(--signal-tint); color:var(--signal-deep);
+    font-family:var(--font-mono); font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .name-cell .nc-text b{display:block; font-weight:600;}
+  .name-cell .nc-text span{font-size:11.5px; color:var(--ink-soft);}
   .skills-cell{display:flex; flex-wrap:wrap; gap:5px; max-width:260px;}
-  .status-pill{display:inline-flex; align-items:center; gap:5px; background:var(--good-soft); color:var(--good); font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px;}
-  .status-pill::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--good);}
-  .icon-btn{width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); transition: background-color .25s ease, border-color .15s ease, color .15s ease;}
-  .icon-btn:hover{border-color:var(--bad); color:var(--bad); background:var(--bad-soft);}
-  .table-head-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .status-pill{display:inline-flex; align-items:center; gap:6px; background:var(--mint-tint); color:var(--mint); font-size:11.5px; font-weight:600; padding:4px 9px; border-radius:var(--radius-sm);}
+  .status-pill::before{content:''; width:5px; height:5px; border-radius:50%; background:var(--mint);}
+  .icon-btn{width:26px; height:26px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); transition: background-color .15s ease, border-color .12s ease, color .12s ease;}
+  .icon-btn:hover{border-color:var(--rust); color:var(--rust); background:var(--rust-tint);}
+  .table-head-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .row-actions{position:relative; display:flex; justify-content:flex-end;}
  
+  /* ---------------- Forms ---------------- */
   select, input[type=text], input[type=number], textarea{
-    width:100%; border:1px solid var(--border); border-radius:8px; padding:9px 11px;
-    font-family:'Inter'; font-size:13.5px; color:var(--ink); background:var(--input-bg);
-    transition: border-color .15s ease, background-color .25s ease;
+    width:100%; border:1px solid var(--line); border-radius:var(--radius-sm); padding:8px 10px;
+    font-family:var(--font-body); font-size:13px; color:var(--ink); background:var(--input-bg);
+    transition: border-color .12s ease, background-color .2s ease;
   }
-  select:focus, input:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
-  label.field-label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:6px;}
+  select:focus, input:focus, textarea:focus{outline:none; border-color:var(--signal); box-shadow:0 0 0 3px var(--signal-tint);}
+  label.field-label{display:block; font-size:11px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:.02em;}
  
+  /* ---------------- Matching ---------------- */
   .match-row{
-    border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:10px;
-    display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition: all .12s ease;
+    border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px; margin-bottom:8px;
+    display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition: all .1s ease;
   }
-  .match-row:hover{border-color:var(--accent); background:var(--accent-soft);}
-  .match-row.selected{border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 1px var(--accent);}
-  .match-row .mr-name{font-weight:600; font-size:14px; margin-bottom:6px;}
+  .match-row:hover{border-color:var(--signal); background:var(--signal-tint);}
+  .match-row.selected{border-color:var(--signal); background:var(--signal-tint); box-shadow:0 0 0 1px var(--signal);}
+  .match-row .mr-left{display:flex; align-items:center; gap:11px; min-width:0;}
+  .match-row .mr-name{font-weight:600; font-size:13.5px; margin-bottom:6px;}
   .match-row .mr-skills{display:flex; flex-wrap:wrap; gap:5px;}
   .match-badge{
-    width:56px; height:56px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono'; font-weight:600; font-size:14px; color:white; flex-shrink:0; margin-left:14px;
+    width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-left:14px; position:relative;
   }
-  .match-badge .lbl{font-size:8px; font-weight:600; text-transform:uppercase; opacity:.85; margin-top:1px;}
+  .match-badge .mb-inner{
+    width:42px; height:42px; border-radius:50%; background:var(--card); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:12px; color:var(--ink);
+  }
  
-  .skill-gap-row{display:flex; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid var(--border-soft);}
+  .skill-gap-row{display:flex; align-items:center; gap:14px; padding:9px 0; border-bottom:1px solid var(--line-soft);}
   .skill-gap-row:last-child{border-bottom:none;}
-  .sg-name{width:110px; flex-shrink:0; font-size:13px; font-weight:600;}
+  .sg-name{width:110px; flex-shrink:0; font-size:12.5px; font-weight:600;}
   .sg-bar-wrap{flex:1;}
-  .sg-bar-track{height:8px; border-radius:99px; background:var(--border-soft); overflow:hidden;}
-  .sg-bar-fill{height:100%; border-radius:99px; transition:width .4s ease;}
-  .sg-levels{display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-soft); margin-top:4px;}
-  .level-badge{font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:6px; margin-left:6px;}
-  .level-badge.required{background:var(--purple-soft); color:var(--purple);}
+  .sg-bar-track{height:7px; border-radius:99px; background:var(--line-soft); overflow:hidden;}
+  .sg-bar-fill{height:100%; border-radius:99px; transition:width .35s ease;}
+  .sg-levels{display:flex; justify-content:space-between; font-size:10px; color:var(--ink-faint); margin-top:4px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.03em;}
+  .level-badge{font-size:10px; font-weight:600; padding:2px 6px; border-radius:4px; margin-left:6px;}
+  .level-badge.required{background:var(--signal-tint); color:var(--signal-deep);}
  
-  .rec-box{background:var(--accent-soft); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:16px;}
-  .rec-box .rec-title{font-family:'Sora'; font-size:12.5px; font-weight:600; color:var(--accent-dark); margin-bottom:6px; display:flex; align-items:center; gap:6px;}
-  .rec-box p{margin:0; font-size:13px; line-height:1.55; color:var(--ink);}
+  .rec-box{background:var(--signal-tint); border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px; margin-top:15px;}
+  .rec-box .rec-title{font-family:var(--font-mono); font-size:10.5px; font-weight:600; color:var(--signal-deep); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; gap:6px;}
+  .rec-box p{margin:0; font-size:12.5px; line-height:1.55; color:var(--ink);}
  
-  .job-list-item{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px;}
-  .job-list-item .jli-title{font-weight:600; font-size:13.5px;}
-  .job-list-item .jli-sub{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .job-list-item{display:flex; align-items:center; justify-content:space-between; padding:11px 13px; border:1px solid var(--line); border-radius:var(--radius); margin-bottom:7px;}
+  .job-list-item .jli-title{font-weight:600; font-size:13px;}
+  .job-list-item .jli-sub{font-size:11px; color:var(--ink-soft); margin-top:2px; font-family:var(--font-mono);}
+
+  /* ---------------- Job Postings — stat cards ---------------- */
+  .job-stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px;}
+  .job-stat-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-rest);}
+  .job-stat-icon{width:38px; height:38px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; margin-bottom:12px;}
+  .job-stat-icon-violet{background:var(--signal-tint); color:var(--signal-deep);}
+  .job-stat-icon-signal{background:var(--signal-tint); color:var(--signal);}
+  .job-stat-icon-mint{background:var(--mint-tint); color:var(--mint);}
+  .job-stat-icon-amber{background:var(--amber-tint); color:var(--amber);}
+  .job-stat-lbl{font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:4px;}
+  .job-stat-num{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:26px; font-weight:700; color:var(--ink); line-height:1.15;}
+  .job-stat-num-sm{font-family:var(--font-display); font-size:17px;}
+  .job-stat-sub{font-size:11px; color:var(--ink-faint); margin-top:4px;}
+
+  /* ---------------- Job Postings — search/sort bar ---------------- */
+  .job-search-row{display:flex; gap:10px; margin-bottom:18px;}
+  .job-search-input{flex:1; display:flex; align-items:center; gap:9px; background:var(--input-bg); border:1px solid var(--line); border-radius:var(--radius); padding:0 13px; color:var(--ink-faint);}
+  .job-search-input input{flex:1; border:none; outline:none; background:transparent; padding:11px 0; font-size:13.5px; color:var(--ink); font-family:var(--font-body);}
+  #jobSortSelect{width:190px;}
+
+  /* ---------------- Job Postings — card grid ---------------- */
+  .job-cards-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:14px;}
+  .job-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow-rest); position:relative;}
+  .job-card-head{display:flex; align-items:flex-start; gap:12px; margin-bottom:12px;}
+  .job-card-icon{width:38px; height:38px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:var(--font-mono); font-weight:700; font-size:13px;}
+  .job-card-icon-0{background:var(--signal-tint); color:var(--signal-deep);}
+  .job-card-icon-1{background:var(--signal-tint); color:var(--signal);}
+  .job-card-icon-2{background:var(--mint-tint); color:var(--mint);}
+  .job-card-icon-3{background:var(--amber-tint); color:var(--amber);}
+  .job-card-icon-4{background:var(--rust-tint); color:var(--rust);}
+  .job-card-title-wrap{flex:1; min-width:0;}
+  .job-card-title-row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .job-card-title{font-family:var(--font-display); font-weight:600; font-size:15.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .job-card-date{font-size:11px; color:var(--ink-faint); margin-top:2px; font-family:var(--font-mono);}
+  .job-card-badge{background:var(--mint-tint); color:var(--mint); font-size:10.5px; font-weight:600; padding:3px 9px; border-radius:99px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;}
+  .job-card-badge::before{content:''; width:5px; height:5px; border-radius:50%; background:var(--mint);}
+  .job-card-menu-wrap{position:relative;}
+  .job-card-menu-btn{background:none; border:none; color:var(--ink-faint); cursor:pointer; padding:2px 4px; border-radius:var(--radius-sm); font-size:16px; line-height:1;}
+  .job-card-menu-btn:hover{background:var(--line-soft); color:var(--ink);}
+  .job-card-menu{position:absolute; right:0; top:26px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow-hover); min-width:110px; z-index:5; display:none; overflow:hidden;}
+  .job-card-menu.show{display:block;}
+  .job-card-menu button{width:100%; text-align:left; padding:8px 12px; background:none; border:none; font-size:12.5px; color:var(--rust); cursor:pointer; font-family:var(--font-body);}
+  .job-card-menu button:hover{background:var(--rust-tint);}
+  .job-card-meta{display:flex; align-items:center; gap:10px; font-size:11.5px; color:var(--ink-soft); margin-bottom:12px; font-family:var(--font-mono);}
+  .job-card-meta .dot{width:3px; height:3px; border-radius:50%; background:var(--ink-faint); flex-shrink:0;}
+  .job-card-skills-lbl{font-size:11px; font-weight:600; color:var(--ink-soft); margin-bottom:8px;}
+  .job-card-skills{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .job-card-skill-chip{font-size:11px; font-weight:500; padding:4px 10px; border-radius:var(--radius-sm); background:var(--line-soft); color:var(--ink-soft);}
+  .job-card-footer{display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid var(--line-soft);}
+  .job-card-match-avg{font-size:12px; font-weight:600; color:var(--mint); display:flex; align-items:center; gap:5px;}
+  .job-card-match-count{font-size:12px; color:var(--ink-soft); font-family:var(--font-mono);}
  
-  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  /* ---------------- Modal ---------------- */
+  .modal-overlay{position:fixed; inset:0; background:rgba(10,12,20,0.5); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
   .modal-overlay.show{display:flex;}
-  .modal{background:var(--card); border-radius:14px; width:100%; max-width:480px; padding:24px; box-shadow:0 20px 60px -12px rgba(0,0,0,0.4); border:1px solid var(--border);}
-  .modal h3{font-family:'Sora'; font-size:16px; margin:0 0 16px;}
-  .modal .row{margin-bottom:14px;}
-  .modal .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
-  .req-skill-row{display:flex; gap:8px; margin-bottom:8px; align-items:center;}
-  .req-skill-row select{width:110px; flex-shrink:0;}
+  .modal{background:var(--card); border-radius:var(--radius-lg); width:100%; max-width:460px; padding:22px; box-shadow:0 24px 64px -12px rgba(0,0,0,0.35); border:1px solid var(--line);}
+  .modal h3{font-size:15px; font-weight:600; margin:0 0 15px;}
+  .modal .row{margin-bottom:13px;}
+  .modal .modal-actions{display:flex; justify-content:flex-end; gap:9px; margin-top:18px;}
+  .req-skill-row{display:flex; gap:7px; margin-bottom:7px; align-items:center;}
+  .req-skill-row select{width:105px; flex-shrink:0;}
   .req-skill-row .icon-btn{flex-shrink:0;}
  
-  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:11px 20px; border-radius:9px; font-size:13px; opacity:0; transition:all .25s ease; pointer-events:none; font-weight:500; z-index:100;}
+  /* ---------------- Toast ---------------- */
+  .toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:var(--radius-sm); font-size:12.5px; opacity:0; transition:all .2s ease; pointer-events:none; font-weight:500; z-index:100; box-shadow:0 12px 28px -8px rgba(0,0,0,.35);}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
  
-  .chat-window{border:1px solid var(--border); border-radius:10px; padding:14px; height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; background:var(--surface-soft); margin-bottom:12px;}
-  .chat-bubble{max-width:80%; padding:9px 13px; border-radius:12px; font-size:13px; line-height:1.5;}
-  .chat-bubble.model{align-self:flex-start; background:var(--card); border:1px solid var(--border); border-bottom-left-radius:3px;}
-  .chat-bubble.user{align-self:flex-end; background:var(--accent); color:white; border-bottom-right-radius:3px;}
-  .chat-input-row{display:flex; gap:8px;}
-  .chat-input-row input{flex:1;}
-  .session-badge{font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px;}
-  .session-badge.active{background:var(--good-soft); color:var(--good);}
-  .session-badge.completed{background:var(--border-soft); color:var(--ink-soft);}
+  /* ---------------- Chat / Interview ---------------- */
+  .chat-window{border:1px solid var(--line); border-radius:var(--radius); padding:14px; height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:9px; background:var(--paper); margin-bottom:12px;}
+  html[data-theme="dark"] .chat-window{background:var(--line-soft);}
+  .chat-bubble{max-width:80%; padding:8px 12px; border-radius:var(--radius); font-size:12.5px; line-height:1.5;}
+  .chat-bubble.model{align-self:flex-start; background:var(--card); border:1px solid var(--line);}
+  .chat-bubble.user{align-self:flex-end; background:var(--signal); color:#fff;}
+  .chat-input-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .chat-input-row input{flex:1; min-width:120px;}
+  .session-badge{font-size:11px; font-weight:600; padding:4px 9px; border-radius:var(--radius-sm); font-family:var(--font-mono);}
+  .session-badge.active{background:var(--mint-tint); color:var(--mint);}
+  .session-badge.completed{background:var(--line-soft); color:var(--ink-soft);}
  
-  .ats-row{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-soft);}
-  .ats-row:last-child{border-bottom:none;}
-  .ats-row .ar-name{font-weight:600; font-size:13.5px;}
-  .ats-status{font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px;}
-  .ats-status.not_scheduled{background:var(--border-soft); color:var(--ink-soft);}
-  .ats-status.scheduled{background:var(--accent-soft); color:var(--accent-dark);}
-  .ats-status.active{background:var(--warn-soft); color:var(--warn);}
-  .ats-status.completed{background:var(--good-soft); color:var(--good);}
+  .ats-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; border:1px solid var(--line); border-radius:var(--radius); margin-bottom:7px; transition:border-color .12s ease, background-color .12s ease;}
+  .ats-row:hover{border-color:var(--signal); background:var(--signal-tint);}
+  .ats-row:last-child{margin-bottom:0;}
+  .ats-row-left{display:flex; align-items:center; gap:10px; min-width:0;}
+  .ats-row .ar-name{font-weight:600; font-size:13px;}
+  .ats-row .ar-meta{font-size:11px; color:var(--ink-soft); margin-top:1px;}
+  .ats-status{font-size:11px; font-weight:600; padding:4px 9px; border-radius:var(--radius-sm); font-family:var(--font-mono);}
+  .ats-status.not_scheduled{background:var(--line-soft); color:var(--ink-soft);}
+  .ats-status.scheduled{background:var(--signal-tint); color:var(--signal-deep);}
+  .ats-status.active{background:var(--amber-tint); color:var(--amber);}
+  .ats-status.completed{background:var(--mint-tint); color:var(--mint);}
+  .ats-status.offered{background:var(--amber-tint); color:var(--amber);}
+  .ats-status.hired{background:var(--mint-tint); color:var(--mint);}
+  .ats-status.rejected{background:var(--rust-tint); color:var(--rust);}
  
-  .q-card{border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:10px;}
-  .q-card .q-num{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent-soft); color:var(--accent-dark); font-family:'JetBrains Mono'; font-size:11px; font-weight:600; margin-right:8px; flex-shrink:0;}
-  .q-card .q-text{font-size:13.5px; line-height:1.5; margin-bottom:8px;}
-  .q-card .q-meta{font-size:11px; color:var(--ink-soft);}
+  .q-card{border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px; margin-bottom:9px;}
+  .q-card .q-num{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:var(--radius-sm); background:var(--signal-tint); color:var(--signal-deep); font-family:var(--font-mono); font-size:10px; font-weight:700; margin-right:8px; flex-shrink:0;}
+  .q-card .q-text{font-size:12.5px; line-height:1.55; margin-bottom:8px;}
+  .q-card .q-meta{font-size:10.5px; color:var(--ink-faint); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.03em;}
   .q-card .q-meta span{margin-right:10px;}
  
-  .pipeline-chart{display:flex; align-items:flex-end; gap:14px; height:180px; padding-top:10px;}
+  /* ---------------- Pipeline chart ---------------- */
+  .pipeline-chart{display:flex; align-items:flex-end; gap:12px; height:170px; padding-top:10px;}
   .pipe-bar-wrap{flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;}
-  .pipe-bar{width:100%; border-radius:6px 6px 0 0; background:linear-gradient(180deg, #5B7CFA, var(--accent)); transition:height .5s ease; min-height:2px;}
-  .pipe-bar.stage-hired{background:linear-gradient(180deg, #4ADE80, var(--good));}
-  .pipe-count{font-family:'JetBrains Mono'; font-size:12px; font-weight:600; color:var(--ink); margin-bottom:4px;}
-  .pipe-label{font-size:10.5px; color:var(--ink-soft); margin-top:8px; text-align:center;}
+  .pipe-bar{width:100%; border-radius:3px 3px 0 0; background:var(--signal); transition:height .4s ease; min-height:2px;}
+  .pipe-bar.stage-hired{background:var(--mint);}
+  .pipe-count{font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--ink); margin-bottom:4px;}
+  .pipe-label{font-size:10px; color:var(--ink-faint); margin-top:8px; text-align:center; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.03em;}
  
-  .rec-status{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--bad); font-weight:600; margin-bottom:10px;}
-  .rec-dot{width:8px; height:8px; border-radius:50%; background:var(--bad); animation:pulse 1.2s infinite;}
+  /* ---------------- Dashboard stat cards (Milestone 4) ---------------- */
+  .dash-stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px;}
+  .dstat{background:var(--card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-rest);}
+  .dstat-icon{width:30px; height:30px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; margin-bottom:10px;}
+  .dstat-icon-signal{background:var(--signal-tint); color:var(--signal);}
+  .dstat-icon-violet{background:var(--signal-tint); color:var(--signal-deep);}
+  .dstat-icon-mint{background:var(--mint-tint); color:var(--mint);}
+  .dstat-icon-amber{background:var(--amber-tint); color:var(--amber);}
+  .dstat-num{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:26px; font-weight:700; color:var(--ink); line-height:1.1;}
+  .dstat-lbl{font-size:12px; color:var(--ink-soft); margin-top:4px; font-weight:600;}
+  .dstat-sub{font-size:10.5px; color:var(--ink-faint); margin-top:6px; font-family:var(--font-mono);}
+ 
+  /* ---------------- Horizontal pipeline bars ---------------- */
+  .hbar-chart{display:flex; flex-direction:column; gap:16px; padding-top:6px;}
+  .hbar-row-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;}
+  .hbar-row-label{font-size:12.5px; font-weight:600; color:var(--ink);}
+  .hbar-row-meta{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+  .hbar-row-meta b{color:var(--ink-soft); font-weight:700;}
+  .hbar-track{width:100%; height:8px; border-radius:99px; background:var(--line-soft); overflow:hidden;}
+  .hbar-fill{height:100%; border-radius:99px; transition:width .4s ease; min-width:2px;}
+ 
+  /* ---------------- Top candidate matches table ---------------- */
+  .match-table-wrap{overflow-x:auto;}
+  .match-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .match-table th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); font-family:var(--font-mono); font-weight:600; padding:0 10px 8px; border-bottom:1px solid var(--line);}
+  .match-table td{padding:10px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
+  .match-table tr:last-child td{border-bottom:none;}
+  .match-name-cell{display:flex; align-items:center; gap:8px;}
+  .match-score-pill{font-family:var(--font-mono); font-weight:700; font-size:11.5px; padding:3px 8px; border-radius:var(--radius-sm); background:var(--mint-tint); color:var(--mint); display:inline-block;}
+  .match-skill-chip{background:var(--line-soft); color:var(--ink-soft); font-size:10.5px; padding:2px 7px; border-radius:var(--radius-sm); margin:0 4px 4px 0; display:inline-block;}
+ 
+  /* ---------------- Interview status grid ---------------- */
+  .interview-status-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px;}
+  .istat{border-radius:var(--radius); padding:12px 14px; background:var(--paper); border:1px solid var(--line);}
+  html[data-theme="dark"] .istat{background:var(--line-soft);}
+  .istat-num{font-family:var(--font-mono); font-size:22px; font-weight:700; line-height:1.1;}
+  .istat-lbl{font-size:11px; color:var(--ink-soft); margin-top:4px; font-weight:600;}
+  .istat-signal .istat-num{color:var(--signal);}
+  .istat-amber .istat-num{color:var(--amber);}
+  .istat-mint .istat-num{color:var(--mint);}
+  .istat-muted .istat-num{color:var(--ink-faint);}
+  .istat-footer{display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:11.5px; color:var(--ink-soft); font-family:var(--font-mono); padding-top:8px; border-top:1px solid var(--line-soft);}
+  .istat-footer b{color:var(--ink);}
+ 
+  .rec-status{display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--rust); font-weight:600; margin-bottom:10px; font-family:var(--font-mono);}
+  .rec-dot{width:7px; height:7px; border-radius:50%; background:var(--rust); animation:pulse 1.1s infinite;}
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.3;}}
-  #waveformCanvas{background:var(--surface-soft); border:1px solid var(--border); border-radius:8px;}
-  .assessment-box{background:var(--good-soft); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:12px;}
-  .assessment-box .a-title{font-family:'Sora'; font-size:12.5px; font-weight:600; color:var(--good); margin-bottom:6px;}
-  .assessment-box p{margin:0; font-size:13px; line-height:1.55; color:var(--ink);}
+  #waveformCanvas{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-sm);}
+  html[data-theme="dark"] #waveformCanvas{background:var(--line-soft);}
+  .assessment-box{background:var(--mint-tint); border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px; margin-top:12px;}
+  .assessment-box .a-title{font-family:var(--font-mono); font-size:10.5px; font-weight:600; color:var(--mint); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em;}
+  .assessment-box p{margin:0; font-size:12.5px; line-height:1.55; color:var(--ink);}
+ 
+  #voicePlayback{border-radius:var(--radius-sm);}
 </style>
 </head>
 <body>
@@ -308,27 +496,42 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="mark">AI</div>
-      <span>Recruitment Copilot</span>
+      <div class="brand-text">
+        <b>Recruitment Copilot</b>
+        <span>Ops Console</span>
+      </div>
     </div>
-    <div class="nav-item active" data-tab="dashboard">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-      Dashboard
+ 
+    <div class="nav-group">
+      <div class="nav-group-label">Overview</div>
+      <div class="nav-item active" data-tab="dashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </div>
     </div>
-    <div class="nav-item" data-tab="upload">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Resume Upload
+ 
+    <div class="nav-group">
+      <div class="nav-group-label">Pipeline</div>
+      <div class="nav-item" data-tab="upload">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Resume Upload
+      </div>
+      <div class="nav-item" data-tab="jobs">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Job Postings
+      </div>
+      <div class="nav-item" data-tab="matching">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        Matching &amp; Skill Analysis
+      </div>
     </div>
-    <div class="nav-item" data-tab="jobs">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-      Job Postings
-    </div>
-    <div class="nav-item" data-tab="matching">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-      Matching &amp; Skill Analysis
-    </div>
-    <div class="nav-item" data-tab="interview">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      Interview Assistant
+ 
+    <div class="nav-group">
+      <div class="nav-group-label">Engagement</div>
+      <div class="nav-item" data-tab="interview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Interview Assistant
+      </div>
     </div>
  
     <div class="sidebar-footer">
@@ -349,36 +552,71 @@
       <div class="panel active" id="panel-dashboard">
         <header class="top">
           <div>
+            <p class="eyebrow">Module 04 — Ops</p>
             <h1>Recruitment Dashboard</h1>
             <p>Recruitment analytics, voice screening, and system status</p>
           </div>
-          <div class="milestone-badge" style="background:var(--purple-soft); color:var(--purple);">Milestone 4</div>
+          <div class="milestone-badge"><span class="led"></span>Live data</div>
         </header>
  
-        <div class="stat-row" style="grid-template-columns:repeat(4,1fr); margin-bottom:20px;">
-          <div class="stat"><div class="num" id="anaTotalCandidates">-</div><div class="lbl">Total Candidates</div></div>
-          <div class="stat"><div class="num" id="anaInterviewsScheduled">-</div><div class="lbl">Interviews Scheduled</div></div>
-          <div class="stat"><div class="num" id="anaHiringRate">-</div><div class="lbl">Hiring Success Rate</div></div>
-          <div class="stat"><div class="num" id="anaTimeToHire">-</div><div class="lbl">Avg. Time to Hire</div></div>
+        <div class="stat-row dash-stat-row">
+          <div class="dstat">
+            <div class="dstat-icon dstat-icon-signal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="dstat-num" id="anaTotalCandidates">-</div>
+            <div class="dstat-lbl">Total Candidates</div>
+            <div class="dstat-sub">Active UB records</div>
+          </div>
+          <div class="dstat">
+            <div class="dstat-icon dstat-icon-violet">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div class="dstat-num" id="anaActiveJobs">-</div>
+            <div class="dstat-lbl">Active Job Positions</div>
+            <div class="dstat-sub">Open roles for matching</div>
+          </div>
+          <div class="dstat">
+            <div class="dstat-icon dstat-icon-mint">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+            </div>
+            <div class="dstat-num" id="anaShortlisted">-</div>
+            <div class="dstat-lbl">Shortlisted Candidates</div>
+            <div class="dstat-sub" id="anaShortlistedSub">— match rate</div>
+          </div>
+          <div class="dstat">
+            <div class="dstat-icon dstat-icon-amber">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="dstat-num" id="anaPendingInterviews">-</div>
+            <div class="dstat-lbl">Pending Interviews</div>
+            <div class="dstat-sub">Awaiting simulation/evaluation</div>
+          </div>
         </div>
  
-        <div class="grid-2" style="margin-bottom:20px;">
+        <div class="grid-2" style="margin-bottom:20px; align-items:start;">
           <div class="card">
-            <h2>Recruitment Pipeline</h2>
-            <p class="sub">Applied &rarr; Screened &rarr; Interviewed &rarr; Offered &rarr; Hired</p>
-            <div id="pipelineChart" class="pipeline-chart"></div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+              <h2 style="margin-bottom:0;">Recruitment Pipeline</h2>
+              <span class="chip sm" id="pipelineTotalChip">0 Total Applicants</span>
+            </div>
+            <p class="sub">Candidate progression across hiring stages</p>
+            <div id="hbarChart" class="hbar-chart"></div>
           </div>
  
           <div class="card">
-            <h2>Voice Screening Module</h2>
-            <p class="sub">Live voice interview — the AI cross-questions based on your answers</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+              <h2 style="margin-bottom:0;">Voice Screening Module</h2>
+              <span class="chip sm">Live</span>
+            </div>
+            <p class="sub">Conduct and manage AI-powered voice candidate screening</p>
             <div class="field-grid" style="margin-bottom:12px;">
               <div>
-                <label class="field-label">Candidate</label>
+                <label class="field-label">Select Candidate</label>
                 <select id="voiceCandidateSelect"></select>
               </div>
               <div>
-                <label class="field-label">Job Position</label>
+                <label class="field-label">Select Job Position</label>
                 <select id="voiceJobSelect"></select>
               </div>
             </div>
@@ -392,7 +630,7 @@
               <button class="btn" id="startRecBtn" type="button">Record Answer</button>
               <button class="btn ghost" id="stopRecBtn" type="button" disabled>Stop</button>
               <button class="btn ghost" id="submitAnswerBtn" type="button" disabled>Submit Answer</button>
-              <button class="btn ghost" id="endInterviewBtn" type="button" style="border-color:var(--bad); color:var(--bad);">End Interview</button>
+              <button class="btn ghost" id="endInterviewBtn" type="button" style="border-color:var(--rust); color:var(--rust);">End Interview</button>
             </div>
  
             <div id="recStatus" class="rec-status" style="display:none;">
@@ -401,11 +639,63 @@
             <canvas id="waveformCanvas" width="500" height="46" style="display:none; width:100%; height:46px; margin-bottom:12px;"></canvas>
  
             <div id="voicePlaybackWrap" style="display:none; margin-bottom:12px;">
-              <label class="field-label">Your recording — listen before submitting</label>
-              <audio id="voicePlayback" controls style="width:100%;"></audio>
+              <label class="field-label">Live transcript — edit if needed, then submit</label>
+              <textarea id="voiceTranscriptBox" rows="3" style="width:100%; resize:vertical;" placeholder="Start speaking… your words will appear here."></textarea>
+              <div id="voiceSttUnsupported" class="hint" style="display:none;">Your browser doesn't support live speech-to-text — recording audio instead.</div>
             </div>
  
             <div id="voiceAssessment"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <h2>Top Candidate Matches</h2>
+          <p class="sub">Ranked by AI match score against active job positions</p>
+          <div class="match-table-wrap">
+            <table class="match-table">
+              <thead>
+                <tr><th>Candidate Name</th><th>Job Position</th><th>Match Score</th><th>Matched Skills</th><th>Status</th></tr>
+              </thead>
+              <tbody id="matchTableBody"></tbody>
+            </table>
+            <div id="matchTableEmpty" class="empty-state" style="display:none;">No candidate/job matches yet — upload resumes and post jobs to see rankings here.</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px; align-items:start;">
+          <div class="card">
+            <h2>Candidate Actions</h2>
+            <p class="sub">Move a candidate forward in the hiring pipeline</p>
+            <div class="field-grid" style="margin-bottom:12px;">
+              <div>
+                <label class="field-label">Candidate</label>
+                <select id="actionCandidateSelect"></select>
+              </div>
+              <div>
+                <label class="field-label">Current Stage</label>
+                <div><span id="actionCandidateStatus" class="ats-status not_scheduled">—</span></div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn" id="offerCandidateBtn" type="button">Mark as Offered</button>
+              <button class="btn" id="hireCandidateBtn" type="button">Mark as Hired</button>
+              <button class="btn ghost" id="rejectCandidateBtn" type="button" style="border-color:var(--rust); color:var(--rust);">Reject</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Interview Status</h2>
+            <p class="sub">Current status of candidate interviews</p>
+            <div class="interview-status-grid">
+              <div class="istat istat-signal"><div class="istat-num" id="istatScheduled">0</div><div class="istat-lbl">Scheduled</div></div>
+              <div class="istat istat-amber"><div class="istat-num" id="istatInProgress">0</div><div class="istat-lbl">In Progress</div></div>
+              <div class="istat istat-mint"><div class="istat-num" id="istatCompleted">0</div><div class="istat-lbl">Completed</div></div>
+              <div class="istat istat-muted"><div class="istat-num" id="istatPending">0</div><div class="istat-lbl">Pending</div></div>
+            </div>
+            <div class="istat-footer">
+              <span>Hiring Success Rate: <b id="anaHiringRate">—</b></span>
+              <span>Avg. Time to Hire: <b id="anaTimeToHire">—</b></span>
+            </div>
           </div>
         </div>
       </div>
@@ -414,37 +704,54 @@
       <div class="panel" id="panel-upload">
         <header class="top">
           <div>
+            <p class="eyebrow">Module 01 — Offline</p>
             <h1>Resume Parsing &amp; Candidate Profiling</h1>
             <p>Upload and process resumes to create structured candidate profiles</p>
           </div>
-          <div class="milestone-badge">Milestone 1</div>
+          <div class="milestone-badge">Rule-based · spaCy</div>
         </header>
  
         <div class="grid">
           <div class="card">
             <h2>Upload Resumes</h2>
-            <p class="sub">Drop one or more files, or click to browse</p>
+            <p class="sub">Drag and drop files here or click to browse</p>
             <div class="dropzone" id="dropzone">
-              <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-              <p>Drag and drop resumes here</p>
-              <button class="btn" id="browseBtn" type="button">Upload Files</button>
+              <div class="dropzone-flourish">
+                <div class="dz-file-badge pdf">PDF</div>
+                <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="dz-file-badge docx">DOCX</div>
+              </div>
+              <p>Drag &amp; drop your resumes here<br/><span style="font-size:11px;">or</span></p>
+              <button class="btn" id="browseBtn" type="button">Browse Files</button>
               <input type="file" id="fileInput" accept=".pdf,.docx" hidden multiple />
-              <div class="hint">Supported formats: PDF, DOCX &middot; multiple files allowed</div>
+              <div class="hint">Supported formats: PDF, DOCX &middot; Multiple files allowed</div>
             </div>
             <div id="uploadedFile"></div>
           </div>
- 
+
           <div class="card">
             <h2>Parsing Progress</h2>
             <p class="sub">Live stats from your candidate database</p>
             <div class="stat-row">
-              <div class="stat"><div class="num" id="statCount">0</div><div class="lbl">Resumes Processed</div></div>
-              <div class="stat"><div class="num" id="statAccuracy">0%</div><div class="lbl">Avg. Extraction Accuracy</div></div>
-              <div class="stat"><div class="num" id="statCreated">0</div><div class="lbl">Profiles Created</div></div>
+              <div class="stat">
+                <div class="job-stat-icon job-stat-icon-violet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="num" id="statCount">0</div><div class="lbl">Resumes Processed</div>
+              </div>
+              <div class="stat">
+                <div class="job-stat-icon job-stat-icon-mint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+                <div class="num" id="statAccuracy">0%</div><div class="lbl">Avg. Extraction Accuracy</div>
+              </div>
+              <div class="stat">
+                <div class="job-stat-icon job-stat-icon-signal"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                <div class="num" id="statCreated">0</div><div class="lbl">Profiles Created</div>
+              </div>
             </div>
             <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
             <div class="extracted">
-              <h3>Most Recent Extraction</h3>
+              <div class="extracted-head-row">
+                <h3 style="margin:0;">Most Recent Extraction</h3>
+                <button class="view-profile-link" id="viewFullProfileBtn" type="button">View Full Profile &rarr;</button>
+              </div>
               <div id="extractedInfo"><div class="empty-state">Upload a resume to see extracted fields here.</div></div>
             </div>
           </div>
@@ -469,26 +776,74 @@
       <div class="panel" id="panel-jobs">
         <header class="top">
           <div>
+            <p class="eyebrow">Module 02 — Pipeline</p>
             <h1>Job Postings</h1>
             <p>Define roles and required skills to match candidates against</p>
           </div>
           <button class="btn" id="openJobModalBtn">+ New Job Posting</button>
         </header>
- 
-        <div class="card">
-          <div id="jobListWrap"></div>
-          <div id="jobListEmpty" class="empty-state" style="display:none;">No job postings yet — create one to start matching candidates.</div>
+
+        <div class="job-stat-row">
+          <div class="job-stat-card">
+            <div class="job-stat-icon job-stat-icon-violet">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div class="job-stat-lbl">Total Job Postings</div>
+            <div class="job-stat-num" id="jobStatTotal">0</div>
+            <div class="job-stat-sub">Active roles in pipeline</div>
+          </div>
+          <div class="job-stat-card">
+            <div class="job-stat-icon job-stat-icon-signal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="job-stat-lbl">Roles Published</div>
+            <div class="job-stat-num" id="jobStatPublished">0</div>
+            <div class="job-stat-sub">Visible to candidates</div>
+          </div>
+          <div class="job-stat-card">
+            <div class="job-stat-icon job-stat-icon-mint">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <div class="job-stat-lbl">Total Matches</div>
+            <div class="job-stat-num" id="jobStatMatches">0</div>
+            <div class="job-stat-sub">Across all roles</div>
+          </div>
+          <div class="job-stat-card">
+            <div class="job-stat-icon job-stat-icon-amber">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="job-stat-lbl">Top Match Found</div>
+            <div class="job-stat-num job-stat-num-sm" id="jobStatTopName">—</div>
+            <div class="job-stat-sub" id="jobStatTopDetail">No matches yet</div>
+          </div>
         </div>
+
+        <div class="job-search-row">
+          <div class="job-search-input">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="jobSearchInput" placeholder="Search job postings..." />
+          </div>
+          <select id="jobSortSelect">
+            <option value="newest">Sort by: Newest</option>
+            <option value="oldest">Sort by: Oldest</option>
+            <option value="match">Sort by: Match avg.</option>
+            <option value="title">Sort by: Title (A–Z)</option>
+          </select>
+        </div>
+
+        <div id="jobCardsGrid" class="job-cards-grid"></div>
+        <div id="jobListEmpty" class="empty-state" style="display:none;">No job postings yet — create one to start matching candidates.</div>
       </div>
  
       <!-- ===================== MATCHING & SKILL ANALYSIS (Milestone 2) ===================== -->
       <div class="panel" id="panel-matching">
         <header class="top">
           <div>
+            <p class="eyebrow">Module 02 — Pipeline</p>
             <h1>Matching &amp; Skill Analysis</h1>
             <p>Candidate-job matching and skill-gap analysis</p>
           </div>
-          <div class="milestone-badge">Milestone 2</div>
+          <div class="milestone-badge">Rule-based scoring</div>
         </header>
  
         <div class="grid-2">
@@ -517,10 +872,11 @@
       <div class="panel" id="panel-interview">
         <header class="top">
           <div>
+            <p class="eyebrow">Module 03 — Engagement</p>
             <h1>Interview Assistance &amp; ATS Integration</h1>
             <p>Generate interview questions, simulate interviews, and manage candidates</p>
           </div>
-          <div class="milestone-badge">Milestone 3</div>
+          <div class="milestone-badge"><span class="led"></span>Gemini-powered</div>
         </header>
  
         <div class="grid-2">
@@ -649,24 +1005,53 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (item.dataset.tab === 'jobs') loadJobsList();
     if (item.dataset.tab === 'matching') loadJobsIntoSelect();
     if (item.dataset.tab === 'interview') loadInterviewTab();
-    if (item.dataset.tab === 'dashboard') { loadAnalytics(); loadVoiceSelectors(); }
+    if (item.dataset.tab === 'dashboard') { loadAnalytics(); loadVoiceSelectors(); loadCandidateActionSelector(); }
   });
 });
  
 /* ================= RESUME UPLOAD (Milestone 1) ================= */
+let lastExtractedCandidateId = null;
+
 function renderExtracted(c){
-  if (!c){ el('extractedInfo').innerHTML = '<div class="empty-state">Upload a resume to see extracted fields here.</div>'; return; }
+  if (!c){
+    lastExtractedCandidateId = null;
+    el('extractedInfo').innerHTML = '<div class="empty-state">Upload a resume to see extracted fields here.</div>';
+    return;
+  }
+  lastExtractedCandidateId = c.id;
   const skills = (c.skills || []).slice(0, 8).map(s => `<span class="chip">${s}</span>`).join('');
   el('extractedInfo').innerHTML = `
-    <div class="field-grid">
-      <div class="field"><div class="k">Name</div><div class="v">${c.name || '—'}</div></div>
-      <div class="field"><div class="k">Email</div><div class="v">${c.email || '—'}</div></div>
-      <div class="field"><div class="k">Phone</div><div class="v">${c.phone || '—'}</div></div>
-      <div class="field"><div class="k">Experience</div><div class="v">${fmtExperience(c.total_experience_years)}</div></div>
+    <div class="extraction-header-row">
+      <div class="avatar-chip lg">${initials(c.name)}</div>
+      <div class="extraction-name-block">
+        <b>${c.name || 'Unknown'}</b>
+        <div class="extraction-contact-row">
+          <span>&#9993; ${c.email || '—'}</span>
+          <span>&#128222; ${c.phone || '—'}</span>
+        </div>
+      </div>
     </div>
     <div class="skills-row">${skills || '<span class="empty-state" style="padding:0;">No skills detected</span>'}</div>`;
 }
- 
+
+el('viewFullProfileBtn').addEventListener('click', () => {
+  if (lastExtractedCandidateId) viewFullProfile(lastExtractedCandidateId);
+});
+
+function viewFullProfile(id){
+  const row = document.querySelector(`tr[data-id="${id}"]`);
+  if (!row){ toast('Candidate not found in the table below.', true); return; }
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  row.classList.remove('row-flash');
+  void row.offsetWidth; // restart animation
+  row.classList.add('row-flash');
+}
+
+function initials(name){
+  if (!name) return '?';
+  return name.split(' ').filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('');
+}
+
 function renderTable(candidates){
   const rows = el('candidateRows'); const empty = el('tableEmpty');
   if (!candidates.length){ rows.innerHTML = ''; empty.style.display = 'block'; return; }
@@ -674,15 +1059,25 @@ function renderTable(candidates){
   rows.innerHTML = candidates.map(c => {
     const skills = (c.skills || []).slice(0,3).map(s => `<span class="chip">${s}</span>`).join('');
     return `<tr data-id="${c.id}">
-        <td class="name-cell"><b>${c.name || 'Unknown'}</b><span>${c.email || '—'}</span></td>
+        <td><div class="name-cell"><div class="avatar-chip">${initials(c.name)}</div><div class="nc-text"><b>${c.name || 'Unknown'}</b><span>${c.email || '—'}</span></div></div></td>
         <td>${fmtExperience(c.total_experience_years)}</td>
         <td><div class="skills-cell">${skills || '—'}</div></td>
         <td><span class="status-pill">Processed</span></td>
-        <td><div class="row-actions"><button class="icon-btn" title="Delete" onclick="deleteCandidate(${c.id})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-        </button></div></td>
+        <td><div class="row-actions">
+          <button class="job-card-menu-btn" type="button" onclick="toggleCandidateMenu(event, ${c.id})">&#8942;</button>
+          <div class="job-card-menu" id="candMenu-${c.id}">
+            <button type="button" style="color:var(--ink);" onclick="viewFullProfile(${c.id}); toggleCandidateMenu(event, ${c.id});">View Profile</button>
+            <button type="button" onclick="deleteCandidate(${c.id})">Delete</button>
+          </div>
+        </div></td>
       </tr>`;
   }).join('');
+}
+
+function toggleCandidateMenu(evt, id){
+  evt.stopPropagation();
+  document.querySelectorAll('.job-card-menu.show').forEach(m => { if (m.id !== `candMenu-${id}`) m.classList.remove('show'); });
+  el(`candMenu-${id}`).classList.toggle('show');
 }
  
 function renderStats(candidates){
@@ -707,6 +1102,7 @@ async function loadCandidates(){
     renderTable(candidates);
     renderExtracted(candidates[0] || null);
     loadVoiceSelectors();
+    loadCandidateActionSelector();
   }catch(err){
     console.error(err);
     toast('Could not load candidates — is the server running?', true);
@@ -718,8 +1114,9 @@ async function uploadResumes(fileList){
   if (!files.length) return;
  
   const single = files.length === 1;
+  el('dropzone').classList.add('scanning');
   el('uploadedFile').innerHTML = `<div class="uploaded-file"><div class="fi">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--signal)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     </div><div class="meta"><b>${single ? files[0].name : `${files.length} files`}</b><span>Uploading and parsing…</span></div></div>`;
  
   const form = new FormData();
@@ -734,17 +1131,17 @@ async function uploadResumes(fileList){
  
     if (single){
       el('uploadedFile').innerHTML = `<div class="uploaded-file"><div class="fi">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--signal)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div><div class="meta"><b>${files[0].name}</b><span>Uploaded just now &middot; ${(files[0].size/1024).toFixed(1)} KB</span></div></div>`;
       toast('Resume parsed and profile created.');
     }else{
       const rows = data.results.map(r => {
         const ok = r.status === 'success';
         return `<div class="uploaded-file" style="margin-top:8px;">
-          <div class="fi" style="background:${ok ? 'var(--good-soft)' : 'var(--bad-soft)'};">
+          <div class="fi" style="background:${ok ? 'var(--mint-tint)' : 'var(--rust-tint)'};">
             ${ok
-              ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`
-              : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bad)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`}
+              ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`
+              : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--rust)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`}
           </div>
           <div class="meta"><b>${r.filename}</b><span>${ok ? (r.candidate.name || 'Parsed successfully') : r.detail}</span></div>
         </div>`;
@@ -757,6 +1154,8 @@ async function uploadResumes(fileList){
     console.error(err);
     el('uploadedFile').innerHTML = '';
     toast(err.message || 'Upload failed', true);
+  }finally{
+    el('dropzone').classList.remove('scanning');
   }
 }
  
@@ -764,7 +1163,10 @@ async function deleteCandidate(id){
   if (!confirm('Delete this candidate profile?')) return;
   try{
     const res = await fetch(`${API}/candidates/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Delete failed');
+    if (!res.ok){
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.detail || 'Delete failed');
+    }
     toast('Candidate deleted.');
     loadCandidates();
   }catch(err){ toast(err.message || 'Delete failed', true); }
@@ -781,34 +1183,144 @@ el('exportBtn').addEventListener('click', () => { window.location.href = `${API}
  
 /* ================= JOB POSTINGS (Milestone 2) ================= */
 let allJobs = [];
- 
+let jobStatsById = {};
+let jobSearchTerm = '';
+let jobSortMode = 'newest';
+
 async function loadJobsList(){
   try{
     const res = await fetch(`${API}/jobs/`);
+    if (!res.ok) throw new Error('Failed to load job postings');
     allJobs = await res.json();
-    const wrap = el('jobListWrap'); const empty = el('jobListEmpty');
-    if (!allJobs.length){ wrap.innerHTML = ''; empty.style.display = 'block'; return; }
-    empty.style.display = 'none';
-    wrap.innerHTML = allJobs.map(j => `
-      <div class="job-list-item">
-        <div>
-          <div class="jli-title">${j.title}</div>
-          <div class="jli-sub">${(j.required_skills||[]).length} required skills · Min ${j.min_experience_years ?? 0} yrs experience</div>
-        </div>
-        <button class="icon-btn" title="Delete" onclick="deleteJob(${j.id})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-        </button>
-      </div>`).join('');
+
+    // Compute match stats per job by reusing the Milestone 2 matching engine.
+    const withStats = await Promise.all(allJobs.map(async (j) => {
+      try{
+        const mRes = await fetch(`${API}/match/${j.id}`);
+        const mData = await mRes.json();
+        const matches = mData.matches || [];
+        const qualifying = matches.filter(m => m.match_percent >= 50);
+        const avg = matches.length ? Math.round(matches.reduce((s, m) => s + m.match_percent, 0) / matches.length) : 0;
+        return { matchCount: qualifying.length, matchAvg: avg, topMatch: matches[0] || null };
+      }catch(err){
+        return { matchCount: 0, matchAvg: 0, topMatch: null };
+      }
+    }));
+    jobStatsById = {};
+    allJobs.forEach((j, i) => { jobStatsById[j.id] = withStats[i]; });
+
+    renderJobStatCards();
+    renderJobCardsGrid();
   }catch(err){ toast('Could not load job postings', true); }
 }
- 
+
+function renderJobStatCards(){
+  const total = allJobs.length;
+  el('jobStatTotal').textContent = total;
+  el('jobStatPublished').textContent = total;
+
+  const totalMatches = Object.values(jobStatsById).reduce((s, v) => s + v.matchCount, 0);
+  el('jobStatMatches').textContent = totalMatches;
+
+  let best = null;
+  allJobs.forEach(j => {
+    const top = jobStatsById[j.id]?.topMatch;
+    if (top && (!best || top.match_percent > best.match_percent)){
+      best = { ...top, jobTitle: j.title };
+    }
+  });
+  if (best){
+    el('jobStatTopName').textContent = best.name || 'Unknown';
+    el('jobStatTopDetail').textContent = `${Math.round(best.match_percent)}% match for "${best.jobTitle}" role`;
+  }else{
+    el('jobStatTopName').textContent = '—';
+    el('jobStatTopDetail').textContent = 'No matches yet';
+  }
+}
+
+function _filteredSortedJobs(){
+  let jobs = allJobs.slice();
+  if (jobSearchTerm){
+    const q = jobSearchTerm.toLowerCase();
+    jobs = jobs.filter(j =>
+      j.title.toLowerCase().includes(q) ||
+      (j.required_skills || []).some(s => (s.skill || '').toLowerCase().includes(q))
+    );
+  }
+  if (jobSortMode === 'newest') jobs.sort((a, b) => b.id - a.id);
+  else if (jobSortMode === 'oldest') jobs.sort((a, b) => a.id - b.id);
+  else if (jobSortMode === 'title') jobs.sort((a, b) => a.title.localeCompare(b.title));
+  else if (jobSortMode === 'match') jobs.sort((a, b) => (jobStatsById[b.id]?.matchAvg || 0) - (jobStatsById[a.id]?.matchAvg || 0));
+  return jobs;
+}
+
+function renderJobCardsGrid(){
+  const grid = el('jobCardsGrid'); const empty = el('jobListEmpty');
+  const jobs = _filteredSortedJobs();
+  if (!allJobs.length){ grid.innerHTML = ''; empty.style.display = 'block'; empty.textContent = 'No job postings yet — create one to start matching candidates.'; return; }
+  if (!jobs.length){ grid.innerHTML = ''; empty.style.display = 'block'; empty.textContent = 'No job postings match your search.'; return; }
+  empty.style.display = 'none';
+
+  grid.innerHTML = jobs.map((j, i) => {
+    const stats = jobStatsById[j.id] || { matchCount: 0, matchAvg: 0 };
+    const iconClass = `job-card-icon-${i % 5}`;
+    const skills = (j.required_skills || []).slice(0, 6).map(s => `<span class="job-card-skill-chip">${s.skill}</span>`).join('')
+      || '<span class="empty-state" style="padding:0;">No skills specified</span>';
+    const posted = j.created_at ? new Date(j.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    return `
+    <div class="job-card">
+      <div class="job-card-head">
+        <div class="job-card-icon ${iconClass}">&lt;/&gt;</div>
+        <div class="job-card-title-wrap">
+          <div class="job-card-title-row">
+            <span class="job-card-title" title="${j.title}">${j.title}</span>
+            <span class="job-card-badge">Active</span>
+          </div>
+          <div class="job-card-date">Posted on ${posted}</div>
+        </div>
+        <div class="job-card-menu-wrap">
+          <button class="job-card-menu-btn" type="button" onclick="toggleJobMenu(event, ${j.id})">&#8942;</button>
+          <div class="job-card-menu" id="jobMenu-${j.id}">
+            <button type="button" onclick="deleteJob(${j.id})">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="job-card-meta">
+        <span>${(j.required_skills || []).length} required skills</span>
+        <span class="dot"></span>
+        <span>Min ${j.min_experience_years ?? 0} yrs experience</span>
+      </div>
+      <div class="job-card-skills-lbl">Required Skills</div>
+      <div class="job-card-skills">${skills}</div>
+      <div class="job-card-footer">
+        <span class="job-card-match-avg">&#8599; ${stats.matchAvg}% match avg.</span>
+        <span class="job-card-match-count">${stats.matchCount} Matches</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleJobMenu(evt, id){
+  evt.stopPropagation();
+  document.querySelectorAll('.job-card-menu.show').forEach(m => { if (m.id !== `jobMenu-${id}`) m.classList.remove('show'); });
+  el(`jobMenu-${id}`).classList.toggle('show');
+}
+document.addEventListener('click', () => document.querySelectorAll('.job-card-menu.show').forEach(m => m.classList.remove('show')));
+
+el('jobSearchInput').addEventListener('input', (e) => { jobSearchTerm = e.target.value.trim(); renderJobCardsGrid(); });
+el('jobSortSelect').addEventListener('change', (e) => { jobSortMode = e.target.value; renderJobCardsGrid(); });
+
 async function deleteJob(id){
   if (!confirm('Delete this job posting?')) return;
   try{
-    await fetch(`${API}/jobs/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${API}/jobs/${id}`, { method: 'DELETE' });
+    if (!res.ok){
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.detail || 'Delete failed');
+    }
     toast('Job posting deleted.');
     loadJobsList();
-  }catch(err){ toast('Delete failed', true); }
+  }catch(err){ toast(err.message || 'Delete failed', true); }
 }
  
 const LEVELS = ['basic', 'intermediate', 'advanced'];
@@ -887,9 +1399,9 @@ el('jobSelect').addEventListener('change', (e) => {
 });
  
 function matchColor(pct){
-  if (pct >= 85) return {bg:'#16A34A', text:'white'};
-  if (pct >= 60) return {bg:'#D97706', text:'white'};
-  return {bg:'#DC2626', text:'white'};
+  if (pct >= 85) return '#0F9D6E';
+  if (pct >= 60) return '#B7791F';
+  return '#C1440E';
 }
  
 async function loadMatches(){
@@ -907,11 +1419,17 @@ async function loadMatches(){
     }
     emptyEl.style.display = 'none';
     listEl.innerHTML = matches.map(m => {
-      const c = matchColor(m.match_percent);
+      const ringColor = matchColor(m.match_percent);
+      const deg = Math.round((m.match_percent / 100) * 360);
       const skills = (m.skills || []).slice(0,4).map(s => `<span class="chip sm">${s}</span>`).join('');
       return `<div class="match-row" data-id="${m.id}" onclick="selectCandidateForGap(${m.id})">
-          <div><div class="mr-name">${m.name || 'Unknown'}</div><div class="mr-skills">${skills}</div></div>
-          <div class="match-badge" style="background:${c.bg}; color:${c.text};">${m.match_percent}%<span class="lbl">Match</span></div>
+          <div class="mr-left">
+            <div class="avatar-chip">${initials(m.name)}</div>
+            <div><div class="mr-name">${m.name || 'Unknown'}</div><div class="mr-skills">${skills}</div></div>
+          </div>
+          <div class="match-badge" style="background:conic-gradient(${ringColor} ${deg}deg, var(--line-soft) ${deg}deg);">
+            <div class="mb-inner" style="color:${ringColor};">${m.match_percent}%</div>
+          </div>
         </div>`;
     }).join('');
     selectCandidateForGap(matches[0].id);
@@ -931,9 +1449,9 @@ async function selectCandidateForGap(candidateId){
 }
  
 function levelColor(status){
-  if (status.meets_requirement) return 'var(--good)';
-  if (status.candidate_level === 'none') return 'var(--bad)';
-  return 'var(--warn)';
+  if (status.meets_requirement) return 'var(--mint)';
+  if (status.candidate_level === 'none') return 'var(--rust)';
+  return 'var(--amber)';
 }
  
 function renderSkillGap(data){
@@ -1125,56 +1643,169 @@ async function loadAtsOverview(){
     const wrap = el('atsList'); const empty = el('atsEmpty');
     if (!candidates.length){ wrap.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
- 
-    const statusLabel = {
-      not_scheduled: 'Not scheduled', scheduled: 'Scheduled',
-      active: 'Interview in progress', completed: 'Completed',
-    };
+
     wrap.innerHTML = candidates.map(c => {
-      const matchBadge = c.match_percent !== null && c.match_percent !== undefined
-        ? `<span class="chip sm" style="margin-left:8px;">${c.match_percent}% match${c.job_title ? ' &middot; ' + c.job_title : ''}</span>`
-        : '';
+      const meta = c.match_percent !== null && c.match_percent !== undefined
+        ? `${c.match_percent}% match${c.job_title ? ' &middot; ' + c.job_title : ''}`
+        : 'No match on file';
       return `
       <div class="ats-row">
-        <div><span class="ar-name">${c.name || 'Unknown'}</span>${matchBadge}</div>
-        <span class="ats-status ${c.status}">${statusLabel[c.status] || c.status}</span>
+        <div class="ats-row-left">
+          <div class="avatar-chip">${initials(c.name)}</div>
+          <div><div class="ar-name">${c.name || 'Unknown'}</div><div class="ar-meta">${meta}</div></div>
+        </div>
+        <span class="ats-status ${c.status}">${CANDIDATE_STAGE_LABEL[c.status] || c.status}</span>
       </div>`;
     }).join('');
   }catch(err){ toast('Could not load ATS overview', true); }
 }
  
 /* ================= ANALYTICS & PIPELINE (Milestone 4) ================= */
+const PIPELINE_STAGE_COLOR = {
+  Applied: 'var(--signal)',
+  Shortlisted: 'var(--signal-deep)',
+  Interview: 'var(--amber)',
+  Offered: '#0EA5A0',
+  Hired: 'var(--mint)',
+  Rejected: 'var(--rust)',
+};
+
 async function loadAnalytics(){
   try{
     const res = await fetch(`${API}/analytics/overview`);
     const data = await res.json();
     el('anaTotalCandidates').textContent = data.stats.total_candidates;
-    el('anaInterviewsScheduled').textContent = data.stats.interviews_scheduled;
+    el('anaActiveJobs').textContent = data.stats.active_job_positions;
+    el('anaShortlisted').textContent = data.stats.shortlisted_candidates;
+    el('anaShortlistedSub').textContent = data.stats.total_candidates
+      ? `${Math.round((data.stats.shortlisted_candidates / data.stats.total_candidates) * 100)}% match rate`
+      : '— match rate';
+    el('anaPendingInterviews').textContent = data.stats.pending_interviews;
     el('anaHiringRate').textContent = data.stats.hiring_success_rate_percent !== null ? `${data.stats.hiring_success_rate_percent}%` : '—';
     el('anaTimeToHire').textContent = data.stats.avg_time_to_hire_days !== null ? `${data.stats.avg_time_to_hire_days}d` : '—';
-    renderPipelineChart(data.pipeline);
+    el('pipelineTotalChip').textContent = `${data.stats.total_candidates} Total Applicants`;
+
+    renderHbarChart(data.pipeline);
+    renderTopMatches(data.top_matches || []);
+
+    const st = data.interview_status || {};
+    el('istatScheduled').textContent = st.scheduled || 0;
+    el('istatInProgress').textContent = st.in_progress || 0;
+    el('istatCompleted').textContent = st.completed || 0;
+    el('istatPending').textContent = st.pending || 0;
   }catch(err){ console.error('Could not load analytics', err); }
 }
- 
-function renderPipelineChart(pipeline){
-  const max = Math.max(...pipeline.map(p => p.count), 1);
-  el('pipelineChart').innerHTML = pipeline.map(p => {
-    const heightPct = p.count > 0 ? Math.max((p.count / max) * 100, 4) : 1;
-    const stageClass = p.stage === 'Hired' ? 'stage-hired' : '';
-    return `<div class="pipe-bar-wrap">
-        <div class="pipe-count">${p.count}</div>
-        <div class="pipe-bar ${stageClass}" style="height:${heightPct}%"></div>
-        <div class="pipe-label">${p.stage}</div>
-      </div>`;
+
+function renderHbarChart(pipeline){
+  el('hbarChart').innerHTML = pipeline.map(p => `
+    <div class="hbar-row">
+      <div class="hbar-row-head">
+        <span class="hbar-row-label">${p.stage}</span>
+        <span class="hbar-row-meta">${p.percent}% <b>${p.count}</b></span>
+      </div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${p.percent}%; background:${PIPELINE_STAGE_COLOR[p.stage] || 'var(--signal)'};"></div></div>
+    </div>`).join('');
+}
+
+function renderTopMatches(matches){
+  const body = el('matchTableBody'); const empty = el('matchTableEmpty');
+  if (!matches.length){ body.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  body.innerHTML = matches.map(m => {
+    const skills = (m.matched_skills || []).map(s => `<span class="match-skill-chip">${s}</span>`).join('') || '<span class="empty-state" style="padding:0;">—</span>';
+    const statusClass = m.status === 'Shortlisted' ? 'completed' : 'not_scheduled';
+    return `<tr>
+      <td><div class="match-name-cell"><div class="avatar-chip">${initials(m.candidate_name)}</div><b>${m.candidate_name}</b></div></td>
+      <td>${m.job_position}</td>
+      <td><span class="match-score-pill">${m.match_percent}%</span></td>
+      <td>${skills}</td>
+      <td><span class="ats-status ${statusClass}">${m.status}</span></td>
+    </tr>`;
   }).join('');
 }
+
+/* ================= CANDIDATE ACTIONS — Offer / Hire / Reject (Milestone 4) ================= */
+const CANDIDATE_STAGE_LABEL = {
+  not_scheduled: 'Not scheduled', scheduled: 'Scheduled',
+  active: 'Interview in progress', completed: 'Completed',
+  offered: 'Offered', hired: 'Hired', rejected: 'Rejected',
+};
+let actionSessionId = null;
+
+async function loadCandidateActionSelector(){
+  const sel = el('actionCandidateSelect');
+  sel.innerHTML = allCandidates.length
+    ? allCandidates.map(c => `<option value="${c.id}">${c.name || 'Unknown'}</option>`).join('')
+    : '<option value="">No candidates yet</option>';
+  await refreshCandidateActionStatus();
+}
+
+async function refreshCandidateActionStatus(){
+  const candidateId = el('actionCandidateSelect').value;
+  const statusEl = el('actionCandidateStatus');
+  if (!candidateId){
+    statusEl.className = 'ats-status not_scheduled';
+    statusEl.textContent = '—';
+    actionSessionId = null;
+    return;
+  }
+  try{
+    const res = await fetch(`${API}/interview/ats`);
+    const data = await res.json();
+    const match = (data.candidates || []).find(c => String(c.candidate_id) === String(candidateId));
+    const status = match ? match.status : 'not_scheduled';
+    statusEl.className = `ats-status ${status}`;
+    statusEl.textContent = CANDIDATE_STAGE_LABEL[status] || status;
+    actionSessionId = match ? match.session_id : null;
+  }catch(err){
+    statusEl.className = 'ats-status not_scheduled';
+    statusEl.textContent = '—';
+    actionSessionId = null;
+  }
+}
+
+el('actionCandidateSelect').addEventListener('change', refreshCandidateActionStatus);
+
+async function setCandidateStage(status){
+  if (!actionSessionId){
+    toast('This candidate has no interview session yet — schedule or start one first.', true);
+    return;
+  }
+  try{
+    const res = await fetch(`${API}/interview/sessions/${actionSessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new Error('Failed to update candidate status');
+    const toastMsg = { hired: 'Candidate marked as hired.', offered: 'Candidate marked as offered.', rejected: 'Candidate marked as rejected.' };
+    toast(toastMsg[status] || 'Candidate status updated.');
+    await refreshCandidateActionStatus();
+    loadAnalytics();
+    loadAtsOverview();
+  }catch(err){
+    toast(err.message || 'Failed to update candidate status', true);
+  }
+}
+
+el('offerCandidateBtn').addEventListener('click', () => setCandidateStage('offered'));
+el('hireCandidateBtn').addEventListener('click', () => setCandidateStage('hired'));
+el('rejectCandidateBtn').addEventListener('click', () => setCandidateStage('rejected'));
  
 /* ================= VOICE SCREENING (Milestone 4) — multi-turn ================= */
 let mediaRecorder = null, audioChunks = [], audioStream = null, recordedBlob = null;
 let audioCtx = null, analyserNode = null, waveformRAF = null, recTimerInterval = null, recSeconds = 0;
 let currentVoiceSessionId = null;
 let voiceTurnCount = 0;
- 
+
+// Prefer live browser speech-to-text (answers are sent as text, not audio).
+// Falls back to recording+uploading audio in browsers without support (e.g. Firefox).
+const SpeechRecCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+const sttSupported = !!SpeechRecCtor;
+let speechRecognizer = null;
+let finalizedTranscript = '';
+let usingSttForCurrentAnswer = false;
+
 async function loadVoiceSelectors(){
   try{
     if (!allJobs.length){ const jr = await fetch(`${API}/jobs/`); allJobs = await jr.json(); }
@@ -1186,24 +1817,26 @@ async function loadVoiceSelectors(){
       : '<option value="">No candidates yet</option>';
   }catch(err){ console.error('Could not load voice selectors', err); }
 }
- 
+
 function resetVoiceInterviewUI(){
   currentVoiceSessionId = null;
   voiceTurnCount = 0;
   el('voiceQuestionBox').style.display = 'none';
   el('voiceRecControls').style.display = 'none';
   el('voicePlaybackWrap').style.display = 'none';
+  el('voiceTranscriptBox').value = '';
   el('startVoiceInterviewBtn').style.display = 'inline-block';
   el('startVoiceInterviewBtn').disabled = false;
   el('startVoiceInterviewBtn').textContent = 'Start Voice Interview';
   recordedBlob = null;
+  finalizedTranscript = '';
 }
- 
+
 el('startVoiceInterviewBtn').addEventListener('click', async () => {
   const candidateId = el('voiceCandidateSelect').value;
   const jobId = el('voiceJobSelect').value;
   if (!candidateId){ toast('No candidate selected', true); return; }
- 
+
   const btn = el('startVoiceInterviewBtn');
   btn.disabled = true; btn.textContent = 'Starting…';
   try{
@@ -1213,7 +1846,7 @@ el('startVoiceInterviewBtn').addEventListener('click', async () => {
     const res = await fetch(`${API}/voice/sessions`, { method: 'POST', body: form });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Failed to start voice interview');
- 
+
     currentVoiceSessionId = data.id;
     voiceTurnCount = 1;
     el('voiceAssessment').innerHTML = '';
@@ -1227,25 +1860,25 @@ el('startVoiceInterviewBtn').addEventListener('click', async () => {
     btn.disabled = false; btn.textContent = 'Start Voice Interview';
   }
 });
- 
+
 function showVoiceQuestion(text){
   el('voiceTurnNum').textContent = `Q${voiceTurnCount}`;
   el('voiceQuestionText').textContent = text;
   el('voiceQuestionBox').style.display = 'block';
 }
- 
+
 function setupWaveform(stream){
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const source = audioCtx.createMediaStreamSource(stream);
   analyserNode = audioCtx.createAnalyser();
   analyserNode.fftSize = 256;
   source.connect(analyserNode);
- 
+
   const canvas = el('waveformCanvas');
   const ctx = canvas.getContext('2d');
   const bufferLength = analyserNode.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
- 
+
   function draw(){
     waveformRAF = requestAnimationFrame(draw);
     analyserNode.getByteFrequencyData(dataArray);
@@ -1254,14 +1887,46 @@ function setupWaveform(stream){
     let x = 0;
     for (let i = 0; i < bufferLength; i++){
       const barHeight = (dataArray[i] / 255) * canvas.height;
-      ctx.fillStyle = '#3457D5';
+      ctx.fillStyle = '#7C3AED';
       ctx.fillRect(x, canvas.height - barHeight, Math.max(barWidth - 1, 1), barHeight);
       x += barWidth;
     }
   }
   draw();
 }
- 
+
+function startSpeechRecognition(){
+  finalizedTranscript = '';
+  speechRecognizer = new SpeechRecCtor();
+  speechRecognizer.continuous = true;
+  speechRecognizer.interimResults = true;
+  speechRecognizer.lang = 'en-US';
+
+  speechRecognizer.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++){
+      const chunk = event.results[i][0].transcript;
+      if (event.results[i].isFinal) finalizedTranscript += chunk + ' ';
+      else interim += chunk;
+    }
+    el('voiceTranscriptBox').value = (finalizedTranscript + interim).trim();
+    el('submitAnswerBtn').disabled = !el('voiceTranscriptBox').value.trim();
+  };
+
+  // Chrome auto-stops recognition after a pause in speech -- restart it
+  // transparently as long as the person hasn't clicked "Stop" themselves.
+  speechRecognizer.onend = () => {
+    if (el('stopRecBtn').disabled === false){
+      try{ speechRecognizer.start(); }catch(e){ /* already running */ }
+    }
+  };
+  speechRecognizer.onerror = (e) => {
+    if (e.error !== 'no-speech' && e.error !== 'aborted') console.warn('Speech recognition error', e.error);
+  };
+
+  speechRecognizer.start();
+}
+
 async function startRecording(){
   try{
     audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1269,26 +1934,33 @@ async function startRecording(){
     toast('Microphone access denied or unavailable', true);
     return;
   }
-  audioChunks = [];
-  recordedBlob = null;
-  el('voicePlaybackWrap').style.display = 'none';
-  mediaRecorder = new MediaRecorder(audioStream);
-  mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
-  mediaRecorder.onstop = () => {
-    recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-    // Let the candidate/recruiter listen back before submitting
-    el('voicePlayback').src = URL.createObjectURL(recordedBlob);
-    el('voicePlaybackWrap').style.display = 'block';
-    el('submitAnswerBtn').disabled = false;
-  };
-  mediaRecorder.start();
- 
+
+  usingSttForCurrentAnswer = sttSupported;
+  el('voiceTranscriptBox').value = '';
+  el('voiceSttUnsupported').style.display = sttSupported ? 'none' : 'block';
+  el('voicePlaybackWrap').style.display = 'block';
+
+  if (usingSttForCurrentAnswer){
+    startSpeechRecognition();
+  }else{
+    // Fallback for browsers without live speech-to-text: record + upload audio.
+    audioChunks = [];
+    recordedBlob = null;
+    mediaRecorder = new MediaRecorder(audioStream);
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+      el('submitAnswerBtn').disabled = false;
+    };
+    mediaRecorder.start();
+  }
+
   el('recStatus').style.display = 'flex';
   el('waveformCanvas').style.display = 'block';
   el('startRecBtn').disabled = true;
   el('stopRecBtn').disabled = false;
   el('submitAnswerBtn').disabled = true;
- 
+
   recSeconds = 0;
   el('recTimer').textContent = '00:00';
   recTimerInterval = setInterval(() => {
@@ -1297,51 +1969,72 @@ async function startRecording(){
     const s = String(recSeconds % 60).padStart(2, '0');
     el('recTimer').textContent = `${m}:${s}`;
   }, 1000);
- 
+
   setupWaveform(audioStream);
 }
- 
+
 function stopRecording(){
+  el('stopRecBtn').disabled = true; // checked by speechRecognizer.onend to prevent auto-restart
+  if (speechRecognizer){ try{ speechRecognizer.stop(); }catch(e){} }
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   if (audioStream) audioStream.getTracks().forEach(t => t.stop());
   if (waveformRAF) cancelAnimationFrame(waveformRAF);
   if (audioCtx) audioCtx.close();
   clearInterval(recTimerInterval);
- 
+
   el('recStatus').style.display = 'none';
   el('waveformCanvas').style.display = 'none';
   el('startRecBtn').disabled = false;
-  el('stopRecBtn').disabled = true;
+
+  if (usingSttForCurrentAnswer){
+    el('submitAnswerBtn').disabled = !el('voiceTranscriptBox').value.trim();
+  }
 }
- 
+
 el('startRecBtn').addEventListener('click', startRecording);
 el('stopRecBtn').addEventListener('click', stopRecording);
- 
+el('voiceTranscriptBox').addEventListener('input', () => {
+  el('submitAnswerBtn').disabled = !el('voiceTranscriptBox').value.trim();
+});
+
 el('submitAnswerBtn').addEventListener('click', async () => {
-  if (!recordedBlob || !currentVoiceSessionId) return;
- 
+  if (!currentVoiceSessionId) return;
+
   const btn = el('submitAnswerBtn');
   btn.disabled = true; btn.textContent = 'Thinking of a follow-up…';
   el('startRecBtn').disabled = true;
- 
-  const form = new FormData();
-  form.append('audio', recordedBlob, 'answer.webm');
- 
+
   try{
-    const res = await fetch(`${API}/voice/sessions/${currentVoiceSessionId}/answer`, { method: 'POST', body: form });
-    const data = await res.json();
+    let res, data;
+    if (usingSttForCurrentAnswer){
+      const text = el('voiceTranscriptBox').value.trim();
+      if (!text){ toast('No speech was recognized. Please try again.', true); throw new Error('__skip_toast__'); }
+      res = await fetch(`${API}/voice/sessions/${currentVoiceSessionId}/answer-text`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+    }else{
+      if (!recordedBlob) throw new Error('No recording to submit.');
+      const form = new FormData();
+      form.append('audio', recordedBlob, 'answer.webm');
+      res = await fetch(`${API}/voice/sessions/${currentVoiceSessionId}/answer`, { method: 'POST', body: form });
+    }
+    data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Failed to submit answer');
- 
+
     voiceTurnCount++;
     const nextQuestion = data.transcript[data.transcript.length - 1].text;
     showVoiceQuestion(nextQuestion);
- 
+
     // Ready for the next answer
     recordedBlob = null;
+    finalizedTranscript = '';
+    el('voiceTranscriptBox').value = '';
     el('voicePlaybackWrap').style.display = 'none';
     el('startRecBtn').disabled = false;
   }catch(err){
-    toast(err.message || 'Failed to submit answer', true);
+    if (err.message !== '__skip_toast__') toast(err.message || 'Failed to submit answer', true);
     el('startRecBtn').disabled = false;
   }finally{
     btn.disabled = true; btn.textContent = 'Submit Answer';
@@ -1387,3 +2080,4 @@ loadVoiceSelectors();
  
 </body>
 </html>
+ 

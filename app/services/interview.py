@@ -181,16 +181,21 @@ def _turns_to_contents(turns: list) -> list:
     """
     Converts resolved turns into Gemini Content objects.
     turns: [{"role": "model", "text": "..."}, {"role": "user", "audio_bytes": b"...", "mime_type": "..."}]
+    A user turn may also arrive as {"role": "user", "text": "..."} when the
+    candidate's answer was captured via the browser's speech-to-text instead
+    of an uploaded audio clip.
     """
     contents = []
     for turn in turns:
         if turn["role"] == "model":
             contents.append(types.Content(role="model", parts=[types.Part(text=turn["text"])]))
-        else:
+        elif "audio_bytes" in turn:
             contents.append(types.Content(
                 role="user",
                 parts=[types.Part.from_bytes(data=turn["audio_bytes"], mime_type=turn["mime_type"])],
             ))
+        else:
+            contents.append(types.Content(role="user", parts=[types.Part(text=turn["text"])]))
     return contents
  
  
@@ -214,6 +219,32 @@ def continue_voice_interview(
         role="user",
         parts=[types.Part.from_bytes(data=new_audio_bytes, mime_type=new_mime_type)],
     ))
+ 
+    response = client.models.generate_content(
+        model=MODEL,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            system_instruction=_VOICE_INTERVIEWER_PERSONA.format(job_title=job_title, who=who)
+        ),
+    )
+    return (response.text or "").strip()
+ 
+ 
+def continue_voice_interview_text(
+    turns: list,
+    job_title: str,
+    candidate_name: Optional[str],
+    new_text: str,
+) -> str:
+    """
+    Same as continue_voice_interview, but for an answer captured as text via
+    the browser's live speech-to-text instead of an uploaded audio clip.
+    """
+    client = _client()
+    who = candidate_name or "the candidate"
+ 
+    contents = _turns_to_contents(turns)
+    contents.append(types.Content(role="user", parts=[types.Part(text=new_text)]))
  
     response = client.models.generate_content(
         model=MODEL,
@@ -258,4 +289,3 @@ def summarize_voice_interview(
         ),
     )
     return (response.text or "").strip()
- 
