@@ -14,8 +14,12 @@ services:
         value: extracted_data
       - key: MAX_UPLOAD_SIZE_MB
         value: "10"
+      - key: PYTHON_VERSION
+        value: 3.11.9
       # No DATABASE_URL / DB_HOST set on purpose: with neither present, the
       # app falls back to a local SQLite file automatically (see
       # app/database.py) so the whole thing runs with zero extra setup.
       # To upgrade later: create a free Render Postgres instance, then add
       # a DATABASE_URL env var here pointing at it (Render can wire this up
+      # for you automatically via "Add Database" in the dashboard).
+     
