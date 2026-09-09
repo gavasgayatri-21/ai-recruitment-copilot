@@ -306,6 +306,7 @@ Then open a Pull Request on GitHub from your fork's branch into this repo's
 **Staying up to date with the latest changes:**
 
 ```bash
+in
+```
 git fetch upstream
 git merge upstream/main
-```
